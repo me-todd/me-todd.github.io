@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Post Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090f;
+    --panel: #13131e;
+    --panel-border: #1e1e2f;
+    --panel-border-hover: #33334d;
+    --tag-bg: #1f1e38;
+    --ink: #e8e8ef;
+    --muted: #6b6b88;
+    --accent: #796cf6;
+    --accent-pink: #ed749d;
+    --grad-start: #8a6de9;
+    --grad-end: #e173a6;
+    --danger: #ff6b9d;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .topbar {
+    padding: 1.4rem 1.8rem;
+    border-bottom: 1px solid var(--panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .topbar h1 {
+    font-family: "Dela Gothic One", "DM Sans", sans-serif;
+    font-size: 1.3rem;
+    margin: 0;
+    background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .topbar p {
+    margin: 0.2rem 0 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: minmax(340px, 460px) 1fr;
+    min-height: calc(100vh - 78px);
+  }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+  }
+
+  .form-pane {
+    padding: 1.8rem;
+    border-right: 1px solid var(--panel-border);
+    overflow-y: auto;
+    max-height: calc(100vh - 78px);
+  }
+
+  .preview-pane {
+    background: #050508;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .preview-label {
+    padding: 0.8rem 1.4rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  #previewFrame {
+    flex: 1;
+    width: 100%;
+    border: none;
+  }
+
+  .field {
+    margin-bottom: 1.3rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.45rem;
+    font-weight: 600;
+  }
+
+  .field .hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+    margin-top: 0.35rem;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 0.65rem 0.8rem;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.92rem;
+    resize: vertical;
+  }
+
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  textarea { min-height: 5rem; }
+
+  textarea.code-input {
+    font-family: "Menlo", "Consolas", monospace;
+    font-size: 0.85rem;
+    min-height: 7rem;
+    background: #0d0d16;
+    white-space: pre;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--tag-bg);
+    color: var(--accent-pink);
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem 0.3rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .tag-chip button {
+    background: none;
+    border: none;
+    color: var(--accent-pink);
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.7;
+  }
+
+  .tag-chip button:hover { opacity: 1; }
+
+  section.group {
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1.6rem;
+    background: rgba(255,255,255,0.015);
+  }
+
+  section.group > h2 {
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--ink);
+  }
+
+  #blockList { display: flex; flex-direction: column; gap: 0.9rem; }
+
+  .block {
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 0.9rem;
+    background: var(--panel);
+  }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .block-type {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .block-actions { display: flex; gap: 0.35rem; }
+
+  .icon-btn {
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--muted);
+    border-radius: 6px;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-btn:hover { border-color: var(--accent); color: var(--ink); }
+  .icon-btn.remove:hover { border-color: var(--danger); color: var(--danger); }
+
+  .block img.thumb {
+    max-width: 100%;
+    max-height: 140px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    display: block;
+  }
+
+  .add-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .add-buttons button {
+    flex: 1 1 auto;
+    background: var(--tag-bg);
+    color: var(--ink);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .add-buttons button:hover { border-color: var(--accent); }
+
+  .primary-btn {
+    width: 100%;
+    background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+    color: #0a0a12;
+    border: none;
+    border-radius: 10px;
+    padding: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: "DM Sans", sans-serif;
+    margin-top: 0.6rem;
+  }
+
+  .primary-btn:hover { filter: brightness(1.08); }
+
+  .file-btn {
+    display: inline-block;
+    background: var(--tag-bg);
+    border: 1px solid var(--panel-border);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .file-btn input { display: none; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>
+      <h1>Blog Post Builder</h1>
+      <p>Fill in the fields, watch the preview update, then download a ready-to-upload HTML file.</p>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="form-pane">
+
+      <section class="group">
+        <h2>Post details</h2>
+        <div class="field">
+          <label for="title">Title</label>
+          <input type="text" id="title" placeholder="Why I Switched to Static Sites">
+        </div>
+        <div class="field">
+          <label for="subtitle">Subtitle</label>
+          <input type="text" id="subtitle" placeholder="A short line that sits under the title (optional)">
+        </div>
+        <div class="field">
+          <label for="author">Author</label>
+          <input type="text" id="author" placeholder="Emily">
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date">
+        </div>
+      </section>
+
+      <section class="group">
+        <h2>Tags</h2>
+        <div class="tag-list" id="tagList"></div>
+        <input type="text" id="tagInput" placeholder="Type a tag and press Enter">
+      </section>
+
+      <section class="group">
+        <h2>Content</h2>
+        <div id="blockList"></div>
+        <div class="add-buttons">
+          <button type="button" data-type="header">+ Paragraph header</button>
+          <button type="button" data-type="paragraph">+ Paragraph</button>
+          <button type="button" data-type="quote">+ Quote</button>
+          <button type="button" data-type="code">+ Code snippet</button>
+          <button type="button" data-type="embed">+ HTML embed</button>
+          <button type="button" data-type="image">+ Image</button>
+        </div>
+        <span class="hint">Blocks render top to bottom, in the order you add them. Use the arrows on a block to reorder it.</span>
+      </section>
+
+      <button class="primary-btn" id="downloadBtn">Download HTML</button>
+    </div>
+
+    <div class="preview-pane">
+      <div class="preview-label">Live preview</div>
+      <iframe id="previewFrame"></iframe>
+    </div>
+  </div>
+
+<script>
+  // =========================================================================
+  // WHAT THIS SCRIPT DOES, IN PLAIN LANGUAGE
+  // -------------------------------------------------------------------------
+  // This page is a form. As you fill it in, we keep everything you type in
+  // one place called "state" (below). Every time something changes, we
+  // rebuild two things from that state:
+  //   1. The editable blocks on the left (so you can reorder/edit them)
+  //   2. The live preview on the right (so you can see the finished post)
+  // When you click "Download HTML", we take that same state and turn it
+  // into one finished, self-contained HTML file you can upload to the blog.
+  //
+  // WHY it's built this way: keeping one "source of truth" (state) and
+  // re-drawing the screen from it, instead of editing the page by hand in
+  // a dozen different places, means the preview can never drift out of
+  // sync with what you actually typed — there's only one place data lives.
+  // =========================================================================
+
+  // "state" is the single source of truth for everything the person has
+  // entered: their tags, and their content blocks (paragraphs, headers,
+  // quotes, code, images). Title/subtitle/author/date live directly on
+  // the input fields, so we just read those when we need them.
+  const state = {
+    tags: [],
+    blocks: [],
+  };
+  let blockCounter = 0; // gives every block a unique ID so we can find/move/remove the right one
+
+  // ---------------------------------------------------------------------
+  // Small reusable helpers
+  // ---------------------------------------------------------------------
+  // WHY: building HTML elements with document.createElement + setAttribute
+  // is repetitive. These two helpers let every part of the script build
+  // elements in one line instead of 4-5 lines each — one piece of code
+  // reused everywhere, instead of the same setup written out over and over.
+
+  // Builds one HTML element. Example: el('button', {class: 'tag'}, [textNode('Hi')])
+  // creates a <button class="tag">Hi</button> without us writing that by hand.
+  function el(tag, attrs, children) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      // Loop through every attribute we were given (class, type, id, etc.)
+      // instead of writing a separate line for each possible attribute.
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'class') node.className = v;
+        else node.setAttribute(k, v);
+      }
+    }
+    (children || []).forEach(c => node.appendChild(c));
+    return node;
+  }
+
+  // Shorthand for "a piece of plain text to put inside an element."
+  function textNode(t) { return document.createTextNode(t); }
+
+  // ---------------------------------------------------------------------
+  // Tags (the little pill labels like "coding" or "notes")
+  // ---------------------------------------------------------------------
+  const tagList = document.getElementById('tagList');
+  const tagInput = document.getElementById('tagInput');
+
+  // Redraws the row of tag chips from state.tags. We clear the list and
+  // rebuild it every time rather than trying to add/remove one chip at a
+  // time — for a small list like tags, "wipe and redraw" is simpler to
+  // read and less likely to get out of sync than tracking edits by hand.
+  function renderTags() {
+    tagList.innerHTML = '';
+    // One loop draws every tag chip, no matter how many tags there are —
+    // this is the reusable-loop approach instead of copy/pasting chip code.
+    state.tags.forEach((tag, i) => {
+      const chip = el('span', { class: 'tag-chip' }, [textNode(tag)]);
+      const removeBtn = el('button', { type: 'button', 'aria-label': 'Remove tag' }, [textNode('\u00d7')]);
+      removeBtn.addEventListener('click', () => {
+        state.tags.splice(i, 1); // remove just this one tag from the list
+        renderTags();            // redraw the chips without it
+        updatePreview();         // and refresh the live preview to match
+      });
+      chip.appendChild(removeBtn);
+      tagList.appendChild(chip);
+    });
+  }
+
+  // Listens for the Enter key in the tag box. Pressing Enter adds
+  // whatever was typed as a new tag (skipping duplicates and blanks),
+  // then clears the box so the person can immediately type the next one.
+  tagInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = tagInput.value.trim();
+      if (val && !state.tags.includes(val)) {
+        state.tags.push(val);
+        renderTags();
+        updatePreview();
+      }
+      tagInput.value = '';
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // Content blocks (paragraph headers, paragraphs, quotes, code, images)
+  // -------------------------------------------------------------------
+  // WHAT: the middle of the post is built from a list of "blocks" — one
+  // entry in state.blocks per header/paragraph/quote/code/image the
+  // person has added, kept in the order they should appear.
+  // WHY a list instead of separate fields: a blog post can have any
+  // number of paragraphs, headers, quotes, code snippets, or images, in
+  // any order. A flexible list lets someone add 1 or 20 without us
+  // needing to redesign anything — one set of rules handles every case.
+  // ---------------------------------------------------------------------
+  const blockList = document.getElementById('blockList');
+
+  // Adds a new, empty block of the given type to the end of the post,
+  // then redraws the editor and the preview so it shows up immediately.
+  function addBlock(type) {
+    const block = { id: ++blockCounter, type, text: '', language: '', imgSrc: '', imgAlt: '', imgCaption: '' };
+    state.blocks.push(block);
+    renderBlocks();
+    updatePreview();
+  }
+
+  // Moves a block up (dir = -1) or down (dir = +1) by swapping it with
+  // its neighbor. This is what powers the ↑ / ↓ buttons on each block.
+  function moveBlock(id, dir) {
+    const idx = state.blocks.findIndex(b => b.id === id);
+    const swapWith = idx + dir;
+    if (swapWith < 0 || swapWith >= state.blocks.length) return; // already at the top/bottom — do nothing
+    [state.blocks[idx], state.blocks[swapWith]] = [state.blocks[swapWith], state.blocks[idx]];
+    renderBlocks();
+    updatePreview();
+  }
+
+  // Deletes one block (by its unique ID) and leaves everything else untouched.
+  function removeBlock(id) {
+    state.blocks = state.blocks.filter(b => b.id !== id);
+    renderBlocks();
+    updatePreview();
+  }
+
+  // The small uppercase label shown at the top of each block in the
+  // editor (e.g. "CODE SNIPPET"). One lookup table here means every
+  // block type's label is defined once, in one place, instead of
+  // scattered through if/else statements wherever a label is needed.
+  const typeLabels = {
+    header: 'Paragraph header',
+    paragraph: 'Paragraph text',
+    quote: 'Quote',
+    code: 'Code snippet',
+    embed: 'HTML embed',
+    image: 'Image',
+  };
+
+  // Redraws every block in the editor, in order. Like renderTags above,
+  // we clear and rebuild the whole list each time — simpler to reason
+  // about than patching individual blocks in place, and fast enough
+  // that people won't notice, even with a long post.
+  function renderBlocks() {
+    blockList.innerHTML = '';
+    // One loop draws every block card, whether the post has 1 block or 50.
+    // This is the "reusable loop instead of repeated code" approach —
+    // we write the drawing logic once and let it run once per block.
+    state.blocks.forEach((block, i) => {
+      // --- Header row: shows the block's type label + the ↑ ↓ ✕ buttons ---
+      const head = el('div', { class: 'block-head' }, [
+        el('span', { class: 'block-type' }, [textNode(typeLabels[block.type])]),
+      ]);
+
+      const actions = el('div', { class: 'block-actions' });
+      const upBtn = el('button', { type: 'button', class: 'icon-btn', title: 'Move up' }, [textNode('\u2191')]);
+      upBtn.disabled = i === 0; // can't move the first block any higher
+      upBtn.addEventListener('click', () => moveBlock(block.id, -1));
+      const downBtn = el('button', { type: 'button', class: 'icon-btn', title: 'Move down' }, [textNode('\u2193')]);
+      downBtn.disabled = i === state.blocks.length - 1; // can't move the last block any lower
+      downBtn.addEventListener('click', () => moveBlock(block.id, 1));
+      const removeBtn = el('button', { type: 'button', class: 'icon-btn remove', title: 'Remove' }, [textNode('\u2715')]);
+      removeBtn.addEventListener('click', () => removeBlock(block.id));
+      actions.appendChild(upBtn);
+      actions.appendChild(downBtn);
+      actions.appendChild(removeBtn);
+      head.appendChild(actions);
+
+      // --- Body: the actual input field(s), different per block type ---
+      // WHY separate branches instead of one generic field: each block
+      // type needs different inputs (an image needs a file picker + alt
+      // text + caption; a code snippet needs a language box + a
+      // monospace textarea; everything else just needs one text field).
+      // The branching below is what tailors the editor to each type —
+      // it's not repeated code, it's four genuinely different jobs.
+      const body = el('div', { class: 'block-body' });
+
+      if (block.type === 'image') {
+        // An image block needs: a file picker, a small preview thumbnail
+        // once chosen, an "alt text" field (read aloud by screen readers,
+        // shown if the image fails to load), and an optional caption.
+        const fileLabel = el('label', { class: 'file-btn' }, [textNode('Choose image')]);
+        const fileInput = el('input', { type: 'file', accept: 'image/*' });
+        fileInput.addEventListener('change', () => {
+          const file = fileInput.files[0];
+          if (!file) return;
+          // FileReader converts the picked image into "base64" text — a
+          // way of representing the image's bytes as plain characters.
+          // WHY: embedding the image as text directly in the HTML file
+          // means the finished post is one single file with no separate
+          // image files to upload or lose track of.
+          const reader = new FileReader();
+          reader.onload = () => {
+            block.imgSrc = reader.result;
+            renderBlocks();
+            updatePreview();
+          };
+          reader.readAsDataURL(file);
+        });
+        fileLabel.appendChild(fileInput);
+        body.appendChild(fileLabel);
+
+        if (block.imgSrc) {
+          body.appendChild(el('img', { class: 'thumb', src: block.imgSrc }));
+        }
+
+        const altInput = el('input', { type: 'text', placeholder: 'Alt text (describe the image)' });
+        altInput.style.marginTop = '0.6rem';
+        altInput.value = block.imgAlt;
+        altInput.addEventListener('input', () => { block.imgAlt = altInput.value; updatePreview(); });
+        body.appendChild(altInput);
+
+        const captionInput = el('input', { type: 'text', placeholder: 'Caption (optional)' });
+        captionInput.style.marginTop = '0.6rem';
+        captionInput.value = block.imgCaption;
+        captionInput.addEventListener('input', () => { block.imgCaption = captionInput.value; updatePreview(); });
+        body.appendChild(captionInput);
+
+      } else if (block.type === 'code') {
+        // A code block needs: an optional "language" label (purely for
+        // your own reference / future syntax highlighting) and a
+        // monospace textarea so code lines up the way code should.
+        const langInput = el('input', { type: 'text', placeholder: 'Language (optional, e.g. python, js)' });
+        langInput.value = block.language;
+        langInput.addEventListener('input', () => { block.language = langInput.value; updatePreview(); });
+        body.appendChild(langInput);
+
+        const codeArea = el('textarea', { class: 'code-input', placeholder: 'Paste or write your code here...', spellcheck: 'false' });
+        codeArea.style.marginTop = '0.6rem';
+        codeArea.value = block.text;
+        codeArea.addEventListener('input', () => { block.text = codeArea.value; updatePreview(); });
+        body.appendChild(codeArea);
+
+      } else if (block.type === 'embed') {
+        // An HTML embed block is different from a code snippet: a code
+        // snippet is meant to be READ (shown as text on the page), while
+        // an embed is meant to RUN (a YouTube player, a tweet, a map,
+        // etc. actually appears and works). So instead of showing the
+        // code, we drop whatever's typed here straight into the page as
+        // real HTML — no escaping, unlike every other block type.
+        const note = el('span', { class: 'hint' }, [
+          textNode('Paste an embed/share code (YouTube, X/Twitter, CodePen, Google Maps, etc.). It runs as real HTML on the page, so only paste code from sources you trust.')
+        ]);
+        note.style.display = 'block';
+        note.style.marginBottom = '0.6rem';
+        body.appendChild(note);
+
+        const embedArea = el('textarea', { class: 'code-input', placeholder: '<iframe ...></iframe>', spellcheck: 'false' });
+        embedArea.value = block.text;
+        embedArea.addEventListener('input', () => { block.text = embedArea.value; updatePreview(); });
+        body.appendChild(embedArea);
+
+      } else {
+        // Headers, paragraphs, and quotes all just need one text field —
+        // a single-line box for headers (short titles), a multi-line box
+        // for paragraphs and quotes (which can run long). Handling all
+        // three with one shared bit of code avoids writing the same
+        // "create field, fill it in, listen for changes" logic 3 times.
+        const isTextarea = block.type !== 'header';
+        const field = isTextarea
+          ? el('textarea', { placeholder: placeholderFor(block.type) })
+          : el('input', { type: 'text', placeholder: placeholderFor(block.type) });
+        field.value = block.text;
+        field.addEventListener('input', () => { block.text = field.value; updatePreview(); });
+        body.appendChild(field);
+      }
+
+      const blockEl = el('div', { class: 'block' }, [head, body]);
+      blockList.appendChild(blockEl);
+    });
+  }
+
+  // A short grey example-text hint shown inside each empty field, so
+  // people know what kind of thing to type without needing instructions.
+  // One lookup instead of duplicating placeholder logic per block type.
+  function placeholderFor(type) {
+    if (type === 'header') return 'e.g. The tipping point';
+    if (type === 'paragraph') return 'Write a paragraph...';
+    if (type === 'quote') return 'A quote to pull out and highlight...';
+    return '';
+  }
+
+  // Wires up the "+ Paragraph header / + Paragraph / + Quote / + Code
+  // snippet / + Image" buttons. One loop handles all of them instead of
+  // writing a separate addEventListener call for each button by hand —
+  // add a 6th button later and it works automatically, no extra code.
+  document.querySelectorAll('.add-buttons button').forEach(btn => {
+    btn.addEventListener('click', () => addBlock(btn.dataset.type));
+  });
+
+  // =========================================================================
+  // HTML GENERATION — turns "state" into the actual downloadable web page
+  // -------------------------------------------------------------------------
+  // Everything below reads what's currently in state (title, subtitle,
+  // author, date, tags, blocks) and turns it into one finished HTML
+  // document, styled to match itsemily.online's blog template. The exact
+  // same function (buildFullHtml) both feeds the live preview AND
+  // produces the downloaded file — so what you see in the preview is
+  // guaranteed to be exactly what you get on download, byte for byte.
+  // =========================================================================
+
+  // Makes text safe to place inside HTML. Someone might type a real "<"
+  // or "&" in their post (e.g. writing about code, or "Q&A"). Without
+  // this step, the browser would try to interpret those characters as
+  // HTML markup instead of showing them as plain text. This swaps each
+  // risky character for its safe HTML equivalent.
+  function escapeHtml(str) {
+    return (str || '').replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
+  }
+
+  // Turns a post title into a clean, URL-safe filename fragment.
+  // Example: "Why I Switched: Static Sites!" becomes "why-i-switched-static-sites"
+  function slugify(str) {
+    return (str || 'post')
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')   // drop punctuation like ! : ' "
+      .trim()
+      .replace(/[\s_]+/g, '-') || 'post'; // turn spaces/underscores into dashes
+  }
+
+  // Converts whatever date was picked into two versions we need:
+  // "iso" (2026-07-15) for the filename, and "human" (July 15, 2026)
+  // for what actually displays on the page.
+  function formatDate(dateStr) {
+    const d = dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
+    const iso = d.toISOString().slice(0, 10);
+    const human = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    return { iso, human };
+  }
+
+  // Turns the list of blocks into the actual HTML that goes inside the
+  // post's content card. One loop walks the blocks in order (top to
+  // bottom, matching what's shown in the editor) and, for each one,
+  // writes out the right HTML tag for its type. Skips any block that
+  // was added but left empty, so blank fields don't create clutter.
+  function buildBodyHtml() {
+    let html = '';
+    state.blocks.forEach((block, i) => {
+      if (block.type === 'header') {
+        if (!block.text.trim()) return; // skip empty blocks
+        html += `      <h2>${escapeHtml(block.text)}</h2>\n`;
+      } else if (block.type === 'paragraph') {
+        if (!block.text.trim()) return;
+        // A person might write several paragraphs in one box, separated
+        // by a blank line — like typing normally in a word processor.
+        // Splitting on blank lines and looping over the pieces turns
+        // that into one <p> tag per paragraph automatically, instead of
+        // making them add a separate block for every single paragraph.
+        block.text.split(/\n\s*\n/).forEach(p => {
+          if (p.trim()) html += `      <p>${escapeHtml(p.trim())}</p>\n`;
+        });
+      } else if (block.type === 'quote') {
+        if (!block.text.trim()) return;
+        html += `      <blockquote>${escapeHtml(block.text.trim())}</blockquote>\n`;
+      } else if (block.type === 'code') {
+        if (!block.text.trim()) return;
+        // If a language was given, we add it as a CSS class (e.g.
+        // class="language-python"). This doesn't change how the code
+        // looks today, but it's the standard hook that syntax-highlighter
+        // tools look for, in case you add one to the blog later.
+        const langClass = block.language.trim() ? ` class="language-${escapeHtml(block.language.trim())}"` : '';
+        html += `      <pre><code${langClass}>${escapeHtml(block.text.replace(/\n+$/, ''))}</code></pre>\n`;
+      } else if (block.type === 'embed') {
+        if (!block.text.trim()) return;
+        // NOTE: no escapeHtml() here — on purpose. Every other block
+        // type escapes its text so it displays as plain words on the
+        // page. An embed is the one exception: we want the pasted code
+        // (an <iframe>, a <blockquote> from Twitter/X, etc.) to actually
+        // run as real HTML, the same way it would on any other website.
+        // We wrap it in a labeled <div> so it can be styled/sized
+        // consistently (e.g. rounded corners, max width) from the CSS.
+        html += `      <div class="embed-wrap">\n${block.text.trim()}\n      </div>\n`;
+      } else if (block.type === 'image') {
+        if (!block.imgSrc) return; // no image chosen yet — skip this block entirely
+        html += `      <figure>\n        <img src="${block.imgSrc}" alt="${escapeHtml(block.imgAlt)}">\n`;
+        if (block.imgCaption.trim()) {
+          html += `        <figcaption>${escapeHtml(block.imgCaption.trim())}</figcaption>\n`;
+        }
+        html += `      </figure>\n`;
+      }
+    });
+    return html;
+  }
+
+  // Assembles the complete, finished HTML page: the styling (fonts,
+  // colors, layout rules) plus the title/subtitle/tags/content we just
+  // built. This one function's output is used both for the live preview
+  // on the right AND for the file you download — same result, two uses.
+  function buildFullHtml() {
+    // Pull the current value straight out of each input field. We read
+    // fresh every time this function runs, so it's always up to date —
+    // there's no separate "save" step to forget.
+    const title = document.getElementById('title').value.trim() || 'Untitled Post';
+    const subtitle = document.getElementById('subtitle').value.trim();
+    const author = document.getElementById('author').value.trim();
+    const dateVal = document.getElementById('date').value;
+    const { human } = formatDate(dateVal);
+    const eyebrow = state.tags[0] || 'Journal'; // the small label above the title uses your first tag, or "Journal" if there are none yet
+
+    // Build small, optional snippets of HTML ahead of time. Each one
+    // only appears if the person actually filled in that field — e.g.
+    // no subtitle line shows up at all if the Subtitle box was left
+    // blank, rather than showing an empty, awkward gap.
+    const tagsHtml = state.tags.length
+      ? `<div class="tags">${state.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`
+      : '';
+
+    const authorMeta = author
+      ? `<span class="dot">&middot;</span><span class="byline">${escapeHtml(author)}</span>`
+      : '';
+
+    const subtitleHtml = subtitle
+      ? `<p class="post-subtitle">${escapeHtml(subtitle)}</p>`
+      : '';
+
+    const footerAuthor = author ? ` by ${escapeHtml(author)}` : '';
+
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(title)}</title>
+<meta name="description" content="${escapeHtml(subtitle || title)}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: "Gulfs Display";
+    src: url("fonts/GulfsDisplay-Bold.woff2") format("woff2"),
+         url("fonts/GulfsDisplay-Bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #09090f;
+    --panel: #13131e;
+    --panel-border: #1e1e2f;
+    --tag-bg: #1f1e38;
+    --ink: #e8e8ef;
+    --muted: #6b6b88;
+    --accent: #796cf6;
+    --accent-pink: #ed749d;
+    --grad-start: #8a6de9;
+    --grad-end: #e173a6;
+    --title-font: "Gulfs Display", "Dela Gothic One", "DM Sans", sans-serif;
+    --body-font: "DM Sans", system-ui, -apple-system, sans-serif;
+    --max-w: 44rem;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body-font);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent-pink); }
+
+  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+
+  header.post-header { margin-bottom: 2.6rem; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--body-font);
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    margin-bottom: 1.3rem;
+  }
+
+  h1.post-title {
+    font-family: var(--title-font);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 5.5vw, 3rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.6rem;
+    background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  p.post-subtitle {
+    font-size: 1.1rem;
+    color: var(--muted);
+    margin: 0 0 1.2rem;
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .post-meta .dot { opacity: 0.5; color: var(--muted); }
+  .post-meta .byline { color: var(--muted); font-weight: 400; }
+
+  .tags { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .tag {
+    font-family: var(--body-font);
+    font-weight: 500;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    color: var(--accent-pink);
+    background: var(--tag-bg);
+  }
+
+  article.post-body {
+    font-size: 1.05rem;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 2.2rem 2.4rem;
+  }
+
+  article.post-body h2 {
+    font-family: var(--body-font);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin: 2.4rem 0 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--panel-border);
+  }
+
+  article.post-body > h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+  article.post-body p { margin: 0 0 1.3rem; color: var(--ink); }
+
+  article.post-body figure { margin: 1.6rem 0; }
+
+  article.post-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    display: block;
+  }
+
+  article.post-body figcaption {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  article.post-body blockquote {
+    margin: 1.8rem 0;
+    padding: 0.2rem 0 0.2rem 1.2rem;
+    border-left: 3px solid var(--accent);
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  article.post-body code {
+    font-family: "Menlo", "Consolas", monospace;
+    font-size: 0.85em;
+    background: var(--tag-bg);
+    color: var(--ink);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+
+  article.post-body pre {
+    background: var(--tag-bg);
+    border: 1px solid var(--panel-border);
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 1.6rem 0;
+  }
+
+  article.post-body pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* Wraps embedded content (YouTube players, tweets, maps, etc.) so it
+     never overflows the card and keeps the same rounded-corner look as
+     images. The embedded code itself controls its own internal layout —
+     this just keeps it contained and consistent with everything else. */
+  article.post-body .embed-wrap {
+    margin: 1.6rem 0;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  article.post-body .embed-wrap iframe,
+  article.post-body .embed-wrap video {
+    max-width: 100%;
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+  }
+
+  footer.post-footer {
+    margin-top: 3rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--panel-border);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    body { font-size: 16px; }
+    .wrap { padding: 2.5rem 1.25rem 4rem; }
+    article.post-body { padding: 1.6rem 1.4rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="post-header">
+      <div class="eyebrow">${escapeHtml(eyebrow)}</div>
+      <h1 class="post-title">${escapeHtml(title)}</h1>
+      ${subtitleHtml}
+      <div class="post-meta">
+        <span>${human}</span>
+        ${authorMeta}
+      </div>
+      ${tagsHtml}
+    </header>
+    <article class="post-body">
+${buildBodyHtml()}    </article>
+    <footer class="post-footer">
+      Published ${human}${footerAuthor}
+    </footer>
+  </div>
+</body>
+</html>
+`;
+  }
+
+  // ---------------------------------------------------------------------
+  // Preview + download
+  // ---------------------------------------------------------------------
+  const previewFrame = document.getElementById('previewFrame');
+
+  // Rebuilds the finished HTML and drops it straight into the preview
+  // panel (an <iframe>, essentially a mini browser window inside this
+  // page) so the person always sees exactly what they'll get.
+  function updatePreview() {
+    previewFrame.srcdoc = buildFullHtml();
+  }
+
+  // The Title/Subtitle/Author/Date fields aren't part of state.blocks —
+  // they're read straight from the page — so we just need each of them
+  // to refresh the preview whenever they change. One loop wires up all
+  // four fields identically instead of writing four almost-identical
+  // addEventListener calls by hand.
+  ['title', 'subtitle', 'author', 'date'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+
+  // "Download HTML" button: builds the finished page one more time,
+  // wraps it as a downloadable file (a "Blob"), and clicks a hidden
+  // link to trigger the browser's normal save-file dialog — the same
+  // mechanism any "Download" button on the web uses under the hood.
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const title = document.getElementById('title').value.trim() || 'post';
+    const { iso } = formatDate(document.getElementById('date').value);
+    const filename = `${iso}-${slugify(title)}.html`; // e.g. "2026-07-15-why-i-switched-to-static-sites.html"
+    const blob = new Blob([buildFullHtml()], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // clean up the temporary link so it doesn't linger in memory
+  });
+
+  // Runs once when the page first loads: adds one empty paragraph block
+  // so the editor isn't completely blank, draws the (currently empty)
+  // tag list, and renders the first preview.
+  addBlock('paragraph');
+  renderTags();
+  updatePreview();
+</script>
+</body>
+</html>

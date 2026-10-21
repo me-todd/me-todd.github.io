@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <!-- This allows your website to scale correctly & how it displays on different screen sizes -->
+  <title>It's me, Emily T.</title>
+  <subtitle> A little work, a little life, and a lot of espresso.</subtitle>
+
+  <!-- Loads Google fonts-->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* =============================================
+       CSS VARIABLES — one place to change colors/fonts
+       Think of these like named paint swatches.
+    ============================================= */
+    :root {
+      --bg: #09090f;
+      --surface: #13131f;
+      --border: #1e1e30;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --font-display: 'Poppins Bold', sans-serif;
+      --font-body: 'Poppins', sans-serif;
+    }
+
+    /* =============================================
+       RESET — clears default browser styling so
+       everything looks the same across browsers
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 1; padding: 1; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      overflow-x: hidden; /* prevent horizontal scroll */
+    }
+
+    /* =============================================
+       NAV BAR — sits at the top of every page
+    ============================================= */
+    nav {
+      display: flex;
+      justify-content: space-between; /* logo left, links right */
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;   /* sticks to top as you scroll */
+      top: 0;
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(12px); /* frosted glass effect */
+      z-index: 100; /* stay above other elements */
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    nav ul {
+      list-style: none; /* remove bullet points */
+      display: flex;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s; /* smooth color change on hover */
+    }
+    nav a:hover, nav a.active { color: var(--text); }
+
+    /* =============================================
+       HERO SECTION — the big first impression block
+    ============================================= */
+    .hero {
+      min-height: 90vh; /* 90% of the screen height */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+
+    /* Decorative glowing orbs in the background */
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px); /* makes it a soft glow */
+      opacity: 0.15;
+      pointer-events: none; /* clicks pass through */
+    }
+    .hero::before {
+      width: 600px; height: 600px;
+      background: var(--accent);
+      top: -100px; left: -100px;
+    }
+    .hero::after {
+      width: 400px; height: 400px;
+      background: var(--accent2);
+      bottom: 0; right: -50px;
+    }
+
+    /* The small label above the main heading */
+    .hero-badge {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.35rem 1rem;
+      border-radius: 999px; /* fully rounded pill shape */
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 5rem); /* scales with screen width */
+      line-height: 1.05;
+      letter-spacing: -2px;
+      max-width: 800px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Gradient text effect on part of the heading */
+    .hero h1 .grad {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =============================================
+       HERO LOGO IMAGE — the "It's me, Emily T." graphic
+       Sits where the h1 used to be plain text.
+       To swap this image later, just replace the file
+       at images/its-all-about-the-vibes.png (keep the
+       same filename, or update the src below).
+    ============================================= */
+    .hero-logo-img {
+      max-width: 100%;
+      width: 380px;      /* controls the logo size — adjust as needed */
+      height: auto;      /* keeps the image's aspect ratio */
+      margin-bottom: 1.5rem;
+    }
+
+    /* =============================================
+       HERO HEADLINE — "Business • Tech • Life"
+       This now lives where the video used to be.
+       Reuses the same gradient text look as before.
+    ============================================= */
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: 56pt;
+      font-weight: bold;
+      letter-spacing: -1px;
+      margin: 1.5rem 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Button group — row of buttons */
+    .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+    /* Primary filled button */
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* Secondary outlined button */
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      text-decoration: none;
+    }
+    .btn-secondary:hover { border-color: var(--accent); }
+
+    /* =============================================
+       FEATURES SECTION — 3-column grid of cards
+    ============================================= */
+    .features {
+      padding: 6rem 2.5rem;
+      max-width: 1100px;
+      margin: 0 auto; /* center the section */
+    }
+
+    .section-label {
+      text-align: center;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      text-align: center;
+      letter-spacing: -1px;
+      margin-bottom: 3rem;
+    }
+
+    /* CSS Grid: 3 equal columns, collapses on mobile */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px); /* lifts up on hover */
+    }
+
+    /* Icon circle above each card title */
+    .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      margin-bottom: 0.6rem;
+    }
+    .card p { color: var(--muted); font-size: 0.9rem; }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* =============================================
+       CHATBOT WIDGET — floating bubble in corner
+       (logic is in chatbot.js, styles here)
+    ============================================= */
+
+    /* The round purple button users click to open chat */
+    #chat-toggle {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(124,107,255,0.5);
+      z-index: 999;
+      transition: transform 0.2s;
+    }
+    #chat-toggle:hover { transform: scale(1.08); }
+
+    /* The chat popup window */
+    #chat-window {
+      position: fixed;
+      bottom: 6rem;
+      right: 2rem;
+      width: 360px;
+      height: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      z-index: 998;
+      /* Hidden by default — JS toggles this */
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    /* When 'open' class is added by JS, the window appears */
+    #chat-window.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    /* Top bar of the chat window */
+    .chat-header {
+      padding: 1rem 1.25rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .chat-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .chat-header-info { flex: 1; }
+    .chat-header-info strong { font-size: 0.9rem; display: block; }
+    .chat-header-info span { font-size: 0.75rem; color: #4ade80; } /* green = online */
+
+    /* Scrollable area where messages appear */
+    .chat-messages {
+      flex: 1; /* takes remaining height */
+      overflow-y: auto; /* scroll when content overflows */
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* Individual message bubble */
+    .msg {
+      max-width: 80%;
+      padding: 0.6rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    /* Bot message — left side */
+    .msg.bot {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      align-self: flex-start; /* left-align */
+      border-bottom-left-radius: 4px;
+    }
+
+    /* User message — right side */
+    .msg.user {
+      background: var(--accent);
+      color: #fff;
+      align-self: flex-end; /* right-align */
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Typing animation shown while waiting for API response */
+    .msg.typing span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      margin: 0 1px;
+      animation: bounce 1s infinite;
+    }
+    .msg.typing span:nth-child(2) { animation-delay: 0.15s; }
+    .msg.typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+
+    /* Input row at the bottom of chat */
+    .chat-input {
+      display: flex;
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 0.9rem;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+    }
+    .chat-input input:focus { border-color: var(--accent); }
+
+    .chat-input button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: opacity 0.2s;
+    }
+    .chat-input button:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav>
+    <ul>
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="resources.html">Resources</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============ HERO SECTION ============ -->
+  <section class="hero">
+
+    <!-- "It's me, Emily T." logo image — was plain "Business • Tech • Life" text.
+         To change the image, replace images/its-all-about-the-vibes.png,
+         or point src at a new file. -->
+    <h1>
+      <img
+        class="hero-logo-img"
+        src="https://itsemily.online/images/itsmemilyt.png"
+        alt="It's me, Emily T. — a little work, a little life, and a lot of espresso"
+      >
+    </h1>
+
+    <h2>I’m Emily, a multipassionate Product Manager in tech.</h2>
+
+    <!-- "Business • Tech • Life" headline — moved here from the h1 above.
+         This used to be where the (broken) intro video sat. -->
+    <h1 class="hero-headline">Business • Tech • Life</h1>
+
+    <h3>Here you’ll find my latest projects, insights on business + tech, and a peek into my life. </h3>
+
+    <div class="btn-group">
+      <a href="blog.html" class="btn-primary">Check out the Blog→</a>
+      <a href="resources.html" class="btn-secondary">Check out the Resources→</a>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES SECTION ============ -->
+  <!-- <section class="features">
+    <p class="section-label">Why NovaSpark</p>
+    <h2 class="section-title">Everything you need to launch</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Instant API Access</h3>
+        <p>Connect to AI models in minutes. No complex setup — just grab your key and start building.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <h3>Smart Chatbots</h3>
+        <p>Embed conversational AI on any page. Our widget drops in with a single script tag.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Usage Analytics</h3>
+        <p>See exactly how users interact with your AI features. Real-time dashboards included.</p>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p>© 2026 Emily Todd · Built with ☕ and curiosity</p>
+  </footer>
+
+  <!-- ============ CHATBOT WIDGET ============ -->
+
+  <!-- The floating purple button -->
+  <button id="chat-toggle" title="Chat with our AI">💬</button>
+
+  <!-- The chat popup window -->
+  <div id="chat-window">
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div class="chat-header-info">
+        <strong>Nova Assistant</strong>
+        <span>● Online</span>
+      </div>
+    </div>
+
+    <!-- Messages appear here dynamically via JS -->
+    <div class="chat-messages" id="chat-messages">
+      <!-- Welcome message added by JS on page load -->
+    </div>
+
+    <div class="chat-input">
+      <!-- 'id' lets JS find this input field -->
+      <input type="text" id="chat-input" placeholder="Ask me anything…" />
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+
+  <!-- Link to our shared chatbot JavaScript file -->
+  <script src="chatbot.js"></script>
+
+</body>
+</html>

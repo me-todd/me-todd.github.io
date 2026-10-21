@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title id="page-title">Post — Emily Todd</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* Same design variables as blog-4.html, so this page matches the
+       rest of the site automatically. If you ever change the colors
+       or fonts on the blog list page, copy those changes here too. */
+    :root {
+      --bg: #09090f;
+      --surface: #13131f;
+      --border: #1e1e30;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav a:hover, nav a.active { color: var(--text); }
+
+    main {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    .post-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+    /* The byline (author name) reuses the meta row but shouldn't shout in
+       uppercase like the date does, so it gets its own toned-down style. */
+    .post-byline {
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .post-tag {
+      background: rgba(124,107,255,0.12);
+      color: var(--accent2);
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* WHAT: the post title, painted with a purple-to-pink gradient instead
+       of a solid color — carried over from the "blog post builder" design.
+       WHY: it's repainted using the site's own --accent/--accent2 colors
+       (not the builder tool's slightly different shades) so every post
+       title matches the rest of the site exactly, even though the effect
+       itself is borrowed from the builder. */
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1.9rem, 4vw, 2.6rem);
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .post-subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 1.3rem;
+    }
+
+    .post-banner {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      background: var(--border);
+    }
+
+    /* ---------- Post body content blocks ---------- */
+    .post-body p {
+      color: var(--text);
+      font-size: 1.02rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .post-body h2 {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 1.35rem;
+      color: var(--text);
+      margin: 2.2rem 0 1rem;
+      padding-top: 1.4rem;
+      border-top: 1px solid var(--border);
+    }
+    /* No divider line above the very first heading — it would sit right
+       under the title with nothing to separate it from. */
+    .post-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+    .post-body blockquote {
+      margin: 1.6rem 0;
+      padding: 0.2rem 0 0.2rem 1.2rem;
+      border-left: 3px solid var(--accent);
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .post-body figure { margin: 1.6rem 0; }
+    .post-body figure img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    .post-body figcaption {
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .post-body pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      margin: 1.6rem 0;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    .post-body pre code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      color: var(--text);
+      white-space: pre;
+    }
+
+    .status-msg {
+      text-align: center;
+      color: var(--muted);
+      padding: 4rem 0;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="logo">Emily<span> Todd</span></a>
+    <ul>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../blog.html" class="active">Blog</a></li>
+      <li><a href="../resources.html">Resources</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <a class="back-link" href="../blog.html">← Back to all posts</a>
+    <!-- Everything below gets filled in by JavaScript once the right
+         post is found in posts.json -->
+    <div id="post-content">
+      <p class="status-msg" id="status-msg">Loading post…</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Emily Todd · Built with ☕ and curiosity</p>
+  </footer>
+
+  <script>
+    // WHAT: Reads the "id" value out of the page's own web address.
+    // Example: posts/post.html?id=vibe-coding  →  gives us "vibe-coding"
+    // WHY: This one page can display ANY post — it just needs to know
+    // which one to look for, and the URL is what tells it.
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('id');
+
+    const postContent = document.getElementById('post-content');
+    const statusMsg = document.getElementById('status-msg');
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // WHAT: Figures out the correct path to an image, no matter where
+    // that image is stored.
+    // WHY: In posts.json, you write image paths as if you were standing
+    // next to blog-4.html — e.g. "images/vibes.jpg" — because that's the
+    // simplest thing to type and remember. But this page (post.html)
+    // actually lives one folder deeper, inside /posts/, so a plain
+    // "images/vibes.jpg" would incorrectly look for /posts/images/vibes.jpg.
+    // This function adds the missing "../" step automatically.
+    // Full web links (starting with "http") are left alone completely,
+    // since those already point to the correct place no matter what.
+    function resolveImagePath(path) {
+      if (!path) return path;
+      return path.startsWith('http') ? path : `../${path}`;
+    }
+
+    // WHAT: Turns plain paragraph text into separate <p> tags.
+    // In posts.json, a blank line (two line breaks in a row, "\n\n")
+    // marks where one paragraph ends and the next begins.
+    // WHY: this is the OLD, simple format — a post that's just a single
+    // block of writing with no headings/quotes/images mixed in. We keep
+    // this working so posts already written this way (like "vibe-coding")
+    // never need to be rewritten.
+    function renderParagraphs(text) {
+      return text
+        .split('\n\n')
+        .map((para) => `<p>${escapeHtml(para)}</p>`)
+        .join('');
+    }
+
+    // WHAT: Renders ONE content block into its matching piece of HTML.
+    // WHY: This is the "loop instead of writing it ten times" approach —
+    // whether a post has 3 blocks or 30, this same small function decides
+    // how to draw each one, based on its "type". Adding a new block to a
+    // post never requires new code — just add another entry to the list.
+    function renderBlock(block) {
+      switch (block.type) {
+        case 'heading':
+          return `<h2>${escapeHtml(block.text)}</h2>`;
+        case 'quote':
+          return `<blockquote>${escapeHtml(block.text)}</blockquote>`;
+        case 'code':
+          // Code keeps its exact spacing/line breaks (a monospace box),
+          // instead of being squeezed into a normal paragraph.
+          return `<pre><code>${escapeHtml(block.text)}</code></pre>`;
+        case 'image':
+          return `
+            <figure>
+              <img src="${escapeHtml(resolveImagePath(block.src))}" alt="${escapeHtml(block.caption || '')}">
+              ${block.caption ? `<figcaption>${escapeHtml(block.caption)}</figcaption>` : ''}
+            </figure>`;
+        case 'paragraph':
+        default:
+          return `<p>${escapeHtml(block.text)}</p>`;
+      }
+    }
+
+    // WHAT: Decides how to build the article body, based on what shape
+    // "content" is in.
+    // WHY: posts.json supports TWO formats on purpose, so older posts
+    // never break when we add new features:
+    //   - a plain STRING  → the old simple format (renderParagraphs)
+    //   - an ARRAY of blocks → the new rich format (heading/quote/code/
+    //     image/paragraph, in any order, mixed freely) — this is what
+    //     lets a post look like a real formatted article instead of one
+    //     wall of text.
+    function renderContent(content) {
+      if (Array.isArray(content)) {
+        return content.map(renderBlock).join('');
+      }
+      return renderParagraphs(content);
+    }
+
+    if (!postId) {
+      statusMsg.textContent = 'No post was specified.';
+    } else {
+      // posts.json lives one folder up from posts/post.html, hence '../'
+      fetch('../posts.json')
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to load posts.json');
+          return res.json();
+        })
+        .then((posts) => {
+          const post = posts.find((p) => p.id === postId);
+
+          if (!post) {
+            statusMsg.textContent = `Post "${postId}" was not found.`;
+            return;
+          }
+
+          document.getElementById('page-title').textContent = `${post.title} — Emily Todd`;
+
+          // Tags can be written as a "tags" list (new, supports several)
+          // or an old single "tag" string — either way, we end up with
+          // one list to loop over, so the display code below doesn't
+          // need to care which format was used.
+          const tagList = post.tags || (post.tag ? [post.tag] : []);
+
+          // Build the whole post page in one go: banner image (only if
+          // the post has one), meta line, title, subtitle, then the body.
+          postContent.innerHTML = `
+            ${post.image ? `<img class="post-banner" src="${escapeHtml(resolveImagePath(post.image))}" alt="${escapeHtml(post.title)}">` : ''}
+            <div class="post-meta">
+              <span>${post.date}</span>
+              ${post.author ? `<span class="post-byline">· ${escapeHtml(post.author)}</span>` : ''}
+              ${tagList.map((t) => `<span class="post-tag">${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <h1>${escapeHtml(post.title)}</h1>
+            ${post.subtitle ? `<p class="post-subtitle">${escapeHtml(post.subtitle)}</p>` : ''}
+            <div class="post-body">${renderContent(post.content)}</div>
+          `;
+        })
+        .catch((err) => {
+          statusMsg.textContent = 'Could not load this post. If you opened this file directly, try running it through a local server instead.';
+          console.error(err);
+        });
+    }
+  </script>
+
+</body>
+</html>

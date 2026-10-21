@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The blog post builder</title>
+<meta name="description" content="Makes my life easier">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: "Gulfs Display";
+    src: url("fonts/GulfsDisplay-Bold.woff2") format("woff2"),
+         url("fonts/GulfsDisplay-Bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #09090f;
+    --panel: #13131e;
+    --panel-border: #1e1e2f;
+    --tag-bg: #1f1e38;
+    --ink: #e8e8ef;
+    --muted: #6b6b88;
+    --accent: #796cf6;
+    --accent-pink: #ed749d;
+    --grad-start: #8a6de9;
+    --grad-end: #e173a6;
+    --title-font: "Gulfs Display", "Dela Gothic One", "DM Sans", sans-serif;
+    --body-font: "DM Sans", system-ui, -apple-system, sans-serif;
+    --max-w: 44rem;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body-font);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent-pink); }
+
+  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+
+  header.post-header { margin-bottom: 2.6rem; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--body-font);
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    margin-bottom: 1.3rem;
+  }
+
+  h1.post-title {
+    font-family: var(--title-font);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 5.5vw, 3rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.6rem;
+    background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  p.post-subtitle {
+    font-size: 1.1rem;
+    color: var(--muted);
+    margin: 0 0 1.2rem;
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .post-meta .dot { opacity: 0.5; color: var(--muted); }
+  .post-meta .byline { color: var(--muted); font-weight: 400; }
+
+  .tags { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .tag {
+    font-family: var(--body-font);
+    font-weight: 500;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    color: var(--accent-pink);
+    background: var(--tag-bg);
+  }
+
+  article.post-body {
+    font-size: 1.05rem;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 2.2rem 2.4rem;
+  }
+
+  article.post-body h2 {
+    font-family: var(--body-font);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin: 2.4rem 0 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--panel-border);
+  }
+
+  article.post-body > h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+  article.post-body p { margin: 0 0 1.3rem; color: var(--ink); }
+
+  article.post-body figure { margin: 1.6rem 0; }
+
+  article.post-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    display: block;
+  }
+
+  article.post-body figcaption {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  article.post-body blockquote {
+    margin: 1.8rem 0;
+    padding: 0.2rem 0 0.2rem 1.2rem;
+    border-left: 3px solid var(--accent);
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  footer.post-footer {
+    margin-top: 3rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--panel-border);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    body { font-size: 16px; }
+    .wrap { padding: 2.5rem 1.25rem 4rem; }
+    article.post-body { padding: 1.6rem 1.4rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="post-header">
+      <div class="eyebrow">resources</div>
+      <h1 class="post-title">The blog post builder</h1>
+      <p class="post-subtitle">Makes my life easier</p>
+      <div class="post-meta">
+        <span>July 14, 2026</span>
+        <span class="dot">&middot;</span><span class="byline">Emily Todd</span>
+      </div>
+      <div class="tags"><span class="tag">resources</span></div>
+    </header>
+    <article class="post-body">
+      <h2>What  &amp; Why</h2>
+      <p>I wanted to build a tool that would make it easier for me to cut through the noise of an HTML file and focus on the writing the content.</p>
+      <h2>How I built it</h2>
+      <p>It&#39;s a vibe. Yeah, I vibe-coded it.  Here&#39;s what I asked Claude to help me do.</p>
+      <blockquote>Develop an HTML based easy to use form that identifies the inputs: Title, Subtitle, Author,  Paragraph Header, paragraph text, any quotes, images, tags that will generate an HTML file that is compatible with my blog pages.</blockquote>
+      <p>It&#39;s also important to note that I have a project set up that I&#39;ve added this to and have included instructions, so that I don&#39;t have to type out &#39;please provide your response in plain language&#39; each time.</p>
+      <p>When I went to look at the instructions I thought I provided, they weren&#39;t there. 🤦🏻‍♀️ This was totally a case of adding instructions to my work instance and not my personal instance. So, I added them and copied the instructions here.
+Because I already in the process of writing this post,</p>
+      <blockquote>You are a great instructor with expert level coding skills. Provide your responses in plain language so that even business people understand what happened and why it happened.  The what and why should be commented in the code.  Any code outputs should prioritize reusable and efficient code followed by teachability. This means that a loop should be used instead of writing out code ten times. The commented code should break the teaching aspect down further, if needed, to explain the code. Here&#39;s an example of comments in the HTML file:</blockquote>
+      <p>&lt;script&gt;
+  // =========================================================================
+  // WHAT THIS SCRIPT DOES, IN PLAIN LANGUAGE
+  // -------------------------------------------------------------------------
+  // This page is a form. As you fill it in, we keep everything you type in
+  // one place called &quot;state&quot; (below). Every time something changes, we
+  // rebuild two things from that state:
+  //   1. The editable blocks on the left (so you can reorder/edit them)
+  //   2. The live preview on the right (so you can see the finished post)
+  // When you click &quot;Download HTML&quot;, we take that same state and turn it
+  // into one finished, self-contained HTML file you can upload to the blog.
+  //
+  // WHY it&#39;s built this way: keeping one &quot;source of truth&quot; (state) and
+  // re-drawing the screen from it, instead of editing the page by hand in
+  // a dozen different places, means the preview can never drift out of
+  // sync with what you actually typed — there&#39;s only one place data lives.
+  // =========================================================================</p>
+      <p>// &quot;state&quot; is the single source of truth for everything the person has
+  // entered: their tags, and their content blocks (paragraphs, headers,
+  // quotes, code, images). Title/subtitle/author/date live directly on
+  // the input fields, so we just read those when we need them.
+  const state = {
+    tags: [],
+    blocks: [],
+  };
+  let blockCounter = 0; // gives every block a unique ID so we can find/move/remove the right one</p>
+      <p>// ---------------------------------------------------------------------
+  // Small reusable helpers
+  // ---------------------------------------------------------------------
+  // WHY: building HTML elements with document.createElement + setAttribute
+  // is repetitive. These two helpers let every part of the script build
+  // elements in one line instead of 4-5 lines each — one piece of code
+  // reused everywhere, instead of the same setup written out over and over.</p>
+      <p>// Builds one HTML element. Example: el(&#39;button&#39;, {class: &#39;tag&#39;}, [textNode(&#39;Hi&#39;)])
+  // creates a &lt;button class=&quot;tag&quot;&gt;Hi&lt;/button&gt; without us writing that by hand.</p>
+      <p>The outcome? An easy to use blog post builder that allows me to write and then add to my file manager to post to my site.</p>
+      <p>Check out the file here: blogpostbuilder.HTML that you can download, modify (or have your LLM modify) for you to use if you&#39;re also learning how to build your site.</p>
+      <p>Let me know if it&#39;s helpful or if you have questions (this will be a good learning experience for me too)!</p>
+    </article>
+    <footer class="post-footer">
+      Published July 14, 2026 by Emily Todd
+    </footer>
+  </div>
+</body>
+</html>

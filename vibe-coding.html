@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>It's all about the vibes — Emily T.</title>
+  <meta name="description" content="Vibe coding my way to a new site and learning" />
+  <meta property="og:title" content="It's all about the vibes" />
+  <meta property="og:description" content="Vibe coding my way to a new site and learning" />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://itsemily.online/images/vibes.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://itsemily.online/images/vibes.jpg/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #09090f;
+      --surface: #13131f;
+      --border: #1e1e30;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.5; overflow-x: hidden; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2.5rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(9,9,15,0.85); backdrop-filter: blur(12px); z-index: 100; }
+    .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; color: var(--text); text-decoration: none; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    nav a:hover, nav a.active { color: var(--text); }
+    main { max-width: 680px; margin: 0 auto; padding: 3.5rem 2rem 5rem; }
+    .back-link { display: inline-block; font-size: 0.85rem; font-weight: 500; color: var(--accent); text-decoration: none; margin-bottom: 2rem; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent2); }
+    .post-meta { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+    .post-tag { background: rgba(124,107,255,0.12); color: var(--accent2); padding: 0.15rem 0.6rem; border-radius: 999px; margin-left: 0.6rem; text-transform: none; letter-spacing: 0; }
+    article h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.6rem); letter-spacing: -1px; line-height: 1.2; margin-bottom: 1.5rem; }
+    .post-image { width: 100%; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem; display: block; }
+    .post-video { position: relative; width: 100%; padding-top: 56.25%; margin-bottom: 1.5rem; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .post-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .video-link { display: inline-block; margin-bottom: 1.5rem; color: var(--accent); text-decoration: none; font-weight: 500; }
+    .video-link:hover { color: var(--accent2); }
+    article p { color: #c4c4d4; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    footer { border-top: 1px solid var(--border); padding: 2rem 2.5rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="../index.html" class="logo">Emily<span>T.</span></a>
+    <ul>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../blog.html" class="active">Blog</a></li>
+      <li><a href="../resources.html">Resources</a></li>
+    </ul>
+  </nav>
+  <main>
+    <a class="back-link" href="../blog.html">← Back to all posts</a>
+    <article>
+      <div class="post-meta">
+        June 29, 2026
+        <span class="post-tag">coding</span>
+      </div>
+      <h1>It's all about the vibes</h1>
+      <img class="post-image" src="https://itsemily.online/images/vibes.jpg" alt="It's all about the vibes" />
+      <p>It's been a tough year, but the one thing that I've continued to be interested in is building my technical skills. With my divorce being finalized, I wanted to move away from EmilyKund.com and create something new. I am stil recovering from the mental toll of the divorce and trying to rebuild my life. And if you're thinking, okaaayyyy, what does that have to do with vibe coding? Let me tell you. I'm tired. A lot. My capacity to learn something like coding my website while spending a lot of brain power during the day is tough.</p>
+      <p>So I asked Claude for some help. I know a little HTML but when it comes to CSS and JS and bootstrap. Oh my! So, I'm taking a short cut and vibe-coding it. if you've vibe coded before, you might be like: look what I made but have no idea how it works. And that might be okay. In this case though, I'm getting some help and doing some of the technical work as well so that I'm learning either way. So, this is post one of what I hope will be many. Vibing, coding, and trying to share a little bit of my journey in tech, leadership, and life. I hope you'll come along.</p>
+    </article>
+  </main>
+  <footer>
+    <p>© 2026 Emily Todd · Built with ☕ and curiosity</p>
+  </footer>
+</body>
+</html>

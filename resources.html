@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resources — It's me, Emily T.</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #09090f;
+      --surface: #13131f;
+      --border: #1e1e30;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ============ NAV ============ */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav a:hover, nav a.active { color: var(--text); }
+
+    /* ============ PAGE HEADER ============ */
+    .page-header {
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .page-header::before, .page-header::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .page-header::before {
+      width: 500px; height: 500px;
+      background: var(--accent);
+      top: -150px; left: -100px;
+    }
+    .page-header::after {
+      width: 350px; height: 350px;
+      background: var(--accent2);
+      top: -80px; right: -80px;
+    }
+
+    .page-badge {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      letter-spacing: -1.5px;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header h1 .grad {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============ RESOURCE LIST ============ */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1rem 2rem 5rem;
+    }
+
+    .category {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .category:hover { border-color: var(--accent); }
+
+    .category-toggle {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 1.1rem 1.5rem;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text);
+    }
+    .category-toggle .arrow {
+      transition: transform 0.15s ease;
+      color: var(--accent);
+      font-size: 0.85rem;
+    }
+    .category.open > .category-toggle .arrow { transform: rotate(90deg); }
+
+    .items {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+    .category.open > .items { display: block; }
+
+    .item {
+      padding: 0.7rem 1.5rem 0.7rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .item:last-child { border-bottom: none; }
+    .item a {
+      color: var(--accent2);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .item a:hover { color: var(--accent); }
+    .item p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Nested sub-menus */
+    .subcategory {
+      border-bottom: 1px solid var(--border);
+    }
+    .subcategory:last-child { border-bottom: none; }
+
+    .subcategory-toggle {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text);
+    }
+    .subcategory-toggle .arrow {
+      transition: transform 0.15s ease;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .subcategory.open > .subcategory-toggle .arrow { transform: rotate(90deg); }
+
+    .subcategory > .items {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+    .subcategory.open > .items { display: block; }
+
+    /* ============ FOOTER ============ */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav>
+    <a href="index.html" class="logo">Emily<span> Todd</span></a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="resources.html" class="active">Resources</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============ PAGE HEADER ============ -->
+  <header class="page-header">
+    <span class="page-badge">Curated Links</span>
+    <h1><span class="grad">Resources</span></h1>
+    <p>Tools, docs, and tutorials I use and keep coming back to.</p>
+  </header>
+
+  <!-- ============ RESOURCE LIST ============ -->
+  <main id="app"></main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p>© 2026 Emily Todd · Built with ☕ and curiosity</p>
+  </footer>
+
+  <script>
+
+    // ╔═══════════════════════════════════════════════════════════════╗
+    // ║  📋  YOUR RESOURCES LIST — EDIT THIS SECTION                  ║
+    // ║  Everything below controls what shows up on the page.         ║
+    // ║  You should never need to touch anything past the 🛑 STOP line║
+    // ╚═══════════════════════════════════════════════════════════════╝
+
+    // 📖 HOW THIS WORKS
+    // -----------------
+    // Think of `categories` as a list of FOLDERS (the big collapsible
+    // headings, like "Tools"). Each folder holds a list of `items`.
+    //
+    // Each item can be ONE of two things:
+    //
+    //   🔗 A LINK          → { label: "...", url: "...", note: "..." (optional) }
+    //   📁 A SUB-FOLDER     → { label: "...", items: [ ...more items... ] }
+    //
+    // Sub-folders can hold more sub-folders inside them too, nested as
+    // deep as you want — but most people will just use folders + links.
+
+    // ⚠️  THE #1 MISTAKE (and how to avoid it)
+    // -----------------------------------------
+    // Every "{" needs a matching "}" and every "[" needs a matching "]".
+    // The safest way to add a new folder is to COPY an entire existing
+    // folder block (open curly brace all the way to its closing curly
+    // brace), paste it, and then just edit the text inside it.
+    // Don't type a "{" and go looking for where to close it later —
+    // that's how brackets get lost.
+
+    const categories = [
+
+      // ───────────────────────────────────────────────
+      // 🧰 FOLDER: Tools
+      // ───────────────────────────────────────────────
+      {
+        title: "Tools",
+        items: [
+          {
+            label: "Cost Justification ROI Calculator",
+            url: "https://itsemily.online/resources/costjustifyROI.html",
+            note: "Need to get some help so you don't have to search for everything or maintain everything? Check out this calculator to see if the data is in your favor."
+          },
+          {
+            label: "Blog Post Builder Utility",
+            url: "https://itsemily.online/resources/blogbuilder.html",
+            note: "Using HTML to build your site and blog posts? Check out this form I built to make it easier"
+          }
+        ]
+     }
+
+      // ───────────────────────────────────────────────
+      // ✍️ FOLDER: TIPS
+      // ───────────────────────────────────────────────
+     // {
+     //   title: "Blog Post Builder Utility",
+     //   items: 
+     // } // 👈 NO comma — this is the last folder in the list right now
+
+      // ───────────────────────────────────────────────
+      // ➕ WANT TO ADD ANOTHER FOLDER?
+      // ───────────────────────────────────────────────
+      // 1. Add a comma "," right after the "}" directly above this comment.
+      // 2. Paste a new block like the template below.
+      // 3. Fill in your own title / label / url / note.
+      //
+      // ,{
+      //   title: "My New Folder",
+      //   items: [
+      //     {
+      //       label: "My Link Name",
+      //       url: "https://example.com",
+      //       note: "Optional one-line description."
+      //     }
+      //   ]
+      // }
+
+    ]; // 🛑 STOP — end of the editable resources list.
+       // Everything below this line is the "engine" that turns the
+       // list above into the clickable page. You shouldn't need to
+       // edit it — but it's commented so you can learn how it works.
+
+
+    // ╔═══════════════════════════════════════════════════════════════╗
+    // ║  ⚙️  THE ENGINE — turns the list above into the page you see    ║
+    // ╚═══════════════════════════════════════════════════════════════╝
+
+    const app = document.getElementById("app");
+
+    // 🔁 renderItems() builds one "items" section at a time.
+    // It's a LOOP (via .forEach), not copy-pasted code — so it works
+    // no matter how many folders or links you add above. It also calls
+    // itself for sub-folders (that's what "recursive" means), so
+    // nesting folders inside folders "just works" automatically.
+    //
+    //   items = the list of links/folders to draw right now
+    //   depth = how deeply nested we are, used only to nudge sub-folders
+    //           inward visually so nesting is easy to see
+    function renderItems(items, depth) {
+      const wrap = document.createElement("div");
+      wrap.className = "items";
+
+      items.forEach(entry => {
+
+        // 📁 CASE 1: this entry is a sub-folder (it has its own items)
+        if (entry.items) {
+          const sub = document.createElement("div");
+          sub.className = "subcategory";
+
+          const toggle = document.createElement("button");
+          toggle.className = "subcategory-toggle";
+          toggle.style.paddingLeft = (24 + depth * 16) + "px";
+          toggle.innerHTML = `<span>${entry.label}</span><span class="arrow">▶</span>`;
+
+          // Clicking a sub-folder just opens/closes it —
+          // stopPropagation() keeps that click from also toggling
+          // whatever folder it's sitting inside of.
+          toggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sub.classList.toggle("open");
+          });
+
+          sub.appendChild(toggle);
+          sub.appendChild(renderItems(entry.items, depth + 1)); // 🔁 repeat for its contents
+          wrap.appendChild(sub);
+
+        // 🔗 CASE 2: this entry is a plain link
+        } else {
+          const row = document.createElement("div");
+          row.className = "item";
+          row.style.paddingLeft = (40 + depth * 16) + "px";
+          row.innerHTML = `
+            <a href="${entry.url}" target="_blank" rel="noopener">${entry.label}</a>
+            ${entry.note ? `<p>${entry.note}</p>` : ""}
+          `;
+          wrap.appendChild(row);
+        }
+      });
+
+      return wrap;
+    }
+
+    // 🏗️ Build one big collapsible section per top-level folder in
+    // `categories`. This is also a loop — add a 100th folder above and
+    // this code doesn't need to change at all.
+    categories.forEach((cat, i) => {
+      const section = document.createElement("div");
+      section.className = "category";
+
+      const toggle = document.createElement("button");
+      toggle.className = "category-toggle";
+      toggle.innerHTML = `<span>${cat.title}</span><span class="arrow">▶</span>`;
+      toggle.addEventListener("click", () => section.classList.toggle("open"));
+
+      section.appendChild(toggle);
+      section.appendChild(renderItems(cat.items, 0));
+      app.appendChild(section);
+
+      if (i === 0) section.classList.add("open"); // ✨ first folder starts open
+    });
+
+  </script>
+
+</body>
+</html>

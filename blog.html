@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog — It's me, Emily T.</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #09090f;
+      --surface: #13131f;
+      --border: #1e1e30;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ============ NAV ============ */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav a:hover, nav a.active { color: var(--text); }
+
+    /* ============ PAGE HEADER ============ */
+    .page-header {
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .page-header::before, .page-header::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .page-header::before {
+      width: 500px; height: 500px;
+      background: var(--accent);
+      top: -150px; left: -100px;
+    }
+    .page-header::after {
+      width: 350px; height: 350px;
+      background: var(--accent2);
+      top: -80px; right: -80px;
+    }
+
+    .page-badge {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      letter-spacing: -1.5px;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header h1 .grad {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============ SEARCH ============ */
+    .search-wrap {
+      max-width: 420px;
+      margin: 2rem auto 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.8rem 1.1rem;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input:disabled { opacity: 0.6; }
+
+    .result-count {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.6rem;
+      min-height: 1.1em;
+    }
+
+    /* ============ POST LIST ============ */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1rem 2rem 5rem;
+    }
+
+    .post-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .post-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    /* Thumbnail shown on the blog list, only for posts that include an
+       "image" field in posts.json. Sits above the title, full-width,
+       with rounded corners to match the card. */
+    .post-thumb {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+      display: block;
+      background: var(--border); /* shows while the image is loading */
+    }
+
+    .post-meta {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.7rem;
+    }
+
+    .post-tag {
+      background: rgba(124,107,255,0.12);
+      color: var(--accent2);
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      margin-left: 0.6rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .post-card h2 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.7rem;
+    }
+
+    .post-card h2 a {
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .post-card h2 a:hover { color: var(--accent); }
+
+    .post-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .post-card mark {
+      background: rgba(255,107,157,0.25);
+      color: var(--text);
+      border-radius: 3px;
+      padding: 0 0.1rem;
+    }
+
+    .read-more {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .read-more:hover { color: var(--accent2); }
+
+    .no-results, .load-status {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+      padding: 3rem 0;
+    }
+    .no-results { display: none; }
+
+    /* ============ FOOTER ============ */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav>
+    <a href="index.html" class="logo">Emily<span> Todd</span></a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html" class="active">Blog</a></li>
+      <li><a href="resources.html">Resources</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============ PAGE HEADER ============ -->
+  <header class="page-header">
+    <span class="page-badge">Latest Writing</span>
+    <h1><span class="grad">The Blog</span></h1>
+    <p>A little work, a little life, and a lot of espresso.</p>
+
+    <div class="search-wrap">
+      <label for="search-input" style="position:absolute;width:1px;height:1px;overflow:hidden;">Search posts</label>
+      <input
+        type="search"
+        id="search-input"
+        placeholder="Search posts…"
+        autocomplete="off"
+        oninput="renderPosts(this.value)"
+        disabled
+      >
+      <div class="result-count" id="result-count"></div>
+    </div>
+  </header>
+
+  <!-- ============ POST LIST ============ -->
+  <main>
+    <p class="load-status" id="load-status">Loading posts…</p>
+    <div id="post-list"></div>
+    <p class="no-results" id="no-results">No posts match your search.</p>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p>© 2026 Emily Todd · Built with ☕ and curiosity</p>
+  </footer>
+
+  <script>
+    /* ================================================================
+       WHERE DO NEW BLOG POSTS GO?
+       ----------------------------------------------------------------
+       This page does NOT contain your blog posts. It's just the
+       "display shell" — it loads posts from a separate file called
+       posts.json (sitting in the same folder as this HTML file) and
+       builds the page from that data automatically.
+
+       TO ADD, EDIT, OR REMOVE A POST: open posts.json, not this file.
+
+       Each post in posts.json needs these 6 pieces of information:
+         - id      : a short, unique, URL-safe name (e.g. "my-new-post")
+                     used to build the link posts/post.html?id=my-new-post
+                     (one shared template page displays every post — see
+                     posts/post.html — so you never create a new HTML
+                     file per post)
+         - title   : the headline shown on the blog list
+         - date    : the date shown under the title (any text works,
+                     e.g. "July 16, 2026")
+         - tag     : a short category label shown as a little pill
+                     (e.g. "Career", "Life") — can be left as "" for none
+         - excerpt : the 1-2 sentence preview shown on the blog list
+         - content : the full text of the post — TWO formats supported,
+                     see below
+
+       CONTENT — two ways to write it:
+
+       1) SIMPLE (just plain writing, no headings/quotes/images inside):
+          "content": "First paragraph.\n\nSecond paragraph."
+          A blank line (two \n in a row) starts a new paragraph.
+
+       2) RICH (headings, quotes, code, and images mixed into the post):
+          "content": [
+            { "type": "heading",   "text": "A section title" },
+            { "type": "paragraph", "text": "Regular writing." },
+            { "type": "quote",     "text": "A pulled-out quote." },
+            { "type": "code",      "text": "const x = 1;" },
+            { "type": "image",     "src": "images/photo.jpg", "caption": "Optional caption" }
+          ]
+          List the blocks in the order they should appear. Use as many
+          or as few as you like, in any order, repeated as needed.
+
+       Optional extra fields (leave any of these out if you don't need them):
+         - image    : a photo/graphic shown as a banner at the top of the
+                       post AND as a thumbnail on the blog list.
+         - subtitle : a one-line subtitle shown under the title.
+         - author   : shown next to the date (e.g. "Emily Todd").
+         - tags     : a LIST of category pills instead of just one, e.g.
+                       "tags": ["Career", "Life"]. (Old posts using a
+                       single "tag" field still work exactly as before.)
+
+       WHY it's built this way: keeping the posts in their own JSON
+       file means you (or anyone) can add a new post by editing one
+       simple, repeatable format — without touching any HTML, CSS, or
+       JavaScript code, and without risk of breaking the page design.
+       A full example, with sample posts already filled in, is
+       provided in posts.json — just copy one entry and change it.
+       ================================================================ */
+    let posts = []; // Will be filled in automatically once posts.json loads (see fetch() below)
+
+    const postList = document.getElementById('post-list');
+    const noResults = document.getElementById('no-results');
+    const resultCount = document.getElementById('result-count');
+    const loadStatus = document.getElementById('load-status');
+    const searchInput = document.getElementById('search-input');
+
+    // WHAT: Turns risky characters (&, <, >) into safe text so a post's
+    // title/content can never accidentally be read as HTML code.
+    // WHY: If someone's post title contained something like "<script>",
+    // this stops it from being executed as code — it just displays as text.
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // WHAT: Wraps the part of the text that matches the search box in a
+    // <mark> tag, which is what gives matches that yellow/pink highlight.
+    // WHY: Helps readers instantly see WHY a post showed up in their search.
+    function highlight(text, term) {
+      if (!term) return escapeHtml(text);
+      const escaped = escapeHtml(text);
+      // Escape special characters so search terms like "c++" don't break the search
+      const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return escaped.replace(new RegExp(safeTerm, 'gi'), (match) => `<mark>${match}</mark>`);
+    }
+
+    // WHAT: Rebuilds the visible list of blog posts on the page.
+    // WHY: This one function is reused every time the page needs to
+    // redraw the list — on first load, and every time someone types in
+    // the search box — instead of writing separate code for each case.
+    function renderPosts(query) {
+      const term = (query || '').trim().toLowerCase();
+
+      // Keep only the posts where the search term appears anywhere in the
+      // title, excerpt, full content, or tag. This one filter step checks
+      // EVERY post automatically — no need to write a check per post.
+      // WHAT: Turns a post's content into one plain search string, no
+      // matter which format it's written in.
+      // WHY: "content" can now be a simple string OR a list of blocks
+      // (headings/quotes/images/etc). Search needs plain text either way,
+      // so this pulls the readable "text" out of each block and joins it
+      // all together — one function handles both formats automatically.
+      function contentToSearchText(content) {
+        if (Array.isArray(content)) {
+          return content.map((block) => block.text || block.caption || '').join(' ');
+        }
+        return content || '';
+      }
+
+      const matches = posts.filter((post) => {
+        const tagList = post.tags || (post.tag ? [post.tag] : []);
+        const haystack = `${post.title} ${post.excerpt} ${contentToSearchText(post.content)} ${tagList.join(' ')}`.toLowerCase();
+        return haystack.includes(term);
+      });
+
+      // Build the HTML for the matching posts. Using .map() here means the
+      // same post-card template is reused for every single post, whether
+      // there are 3 posts or 300 — nobody has to copy/paste this HTML
+      // block by hand for each new post.
+      // Tags can be written as a "tags" list (new, supports several) or an
+      // old single "tag" string — either way, we end up with one list to
+      // loop over, so this display code doesn't care which format was used.
+      postList.innerHTML = matches.map((post) => {
+        const tagList = post.tags || (post.tag ? [post.tag] : []);
+        return `
+        <article class="post-card">
+          ${post.image ? `<a href="posts/post.html?id=${post.id}"><img class="post-thumb" src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}"></a>` : ''}
+          <div class="post-meta">
+            ${post.date}
+            ${tagList.map((t) => `<span class="post-tag">${escapeHtml(t)}</span>`).join('')}
+          </div>
+          <h2><a href="posts/post.html?id=${post.id}">${highlight(post.title, term)}</a></h2>
+          <p>${highlight(post.excerpt, term)}</p>
+          <a class="read-more" href="posts/post.html?id=${post.id}">Read more →</a>
+        </article>
+      `;
+      }).join('');
+
+      // Show the "no results" message only when nothing matched, and update
+      // the small "X posts found" counter under the search box.
+      noResults.style.display = matches.length === 0 ? 'block' : 'none';
+      resultCount.textContent = term
+        ? `${matches.length} post${matches.length === 1 ? '' : 's'} found`
+        : '';
+    }
+
+    // WHAT: Loads posts.json (your actual blog post data) and, once it
+    // arrives, turns the search box on and draws the full post list.
+    // WHY: Separating "the data" (posts.json) from "the design" (this
+    // HTML file) means adding a new post never requires touching code —
+    // just add an entry to posts.json and this page displays it automatically.
+    fetch('posts.json')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load posts.json');
+        return res.json();
+      })
+      .then((data) => {
+        posts = data;
+        loadStatus.style.display = 'none';
+        searchInput.disabled = false;
+        renderPosts(''); // '' = no search term yet, so show every post
+      })
+      .catch((err) => {
+        // This runs if posts.json is missing, misnamed, or the page was
+        // opened directly as a file (fetch requires a local/live server).
+        loadStatus.textContent = 'Could not load posts. If you opened this file directly, try running it through a local server instead.';
+        console.error(err);
+      });
+  </script>
+
+</body>
+</html>

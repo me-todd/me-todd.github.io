@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost Justification Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     All colors used throughout the page are defined once here as
+     CSS variables (--name). Change a value here and it updates
+     everywhere it's used — no need to hunt through the file.
+     ============================================================ */
+  :root{
+    --ink:#132A2E;        /* main text / heading color */
+    --paper:#e8e8f0;      /* page background */
+    --panel:#F7F4FE;      /* card / section background */
+    --line:#132A2E;       /* borders and dividers */
+    --accent:#5E17EB;     /* rust/amber accent (labels, section numbers) */
+    --accent-soft:#B7F897;/* light background for accent chips */
+    --text2:#132A2E;       /* secondary text color (derived-purple cards) */
+    --teal-soft:#CCB4FD;  /* light purplebackground for purple cards */
+    --text:#132A2E;      /* secondary text */
+    --danger:#ff6b9d;     /* bright pink used for the row-delete button */
+    font-size:16px;
+  }
+
+  /* ============================================================
+     BASE PAGE LAYOUT
+     ============================================================ */
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+    padding:40px 24px 80px;
+  }
+
+  .sheet{
+    max-width:920px; /* keeps the worksheet a comfortable reading width */
+    margin:0 auto;
+  }
+
+  /* ============================================================
+     PAGE HEADER (title + Reset/Print buttons)
+     ============================================================ */
+  header.masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:32px;
+    gap:20px;
+  }
+  header.masthead .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 6px;
+  }
+  header.masthead h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:32px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  header.masthead p.sub{
+    margin:6px 0 0;
+    color:var(--text);
+    font-size:14.5px;
+    max-width:480px;
+  }
+  .print-only-note{display:none;} /* hidden on screen; shown only when printing, see @media print below */
+
+  /* Reset / Print buttons in the top-right of the header */
+  .toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    border-radius:7px;
+    padding:9px 14px;
+    cursor:pointer;
+    border:1.5px solid var(--ink);
+    background:var(--panel);
+    color:var(--ink);
+    transition:transform .08s ease, background .15s ease;
+  }
+  button.primary{background:var(--ink);color:#fff;}
+  button:hover{transform:translateY(-1px);}
+  button:active{transform:translateY(0);}
+  button.ghost{border-color:var(--line);color:var(--muted);}
+
+  /* ============================================================
+     SECTION CARDS (the numbered "01 Your rate assumptions" etc.
+     white boxes that group each part of the form)
+     ============================================================ */
+  section{
+    background:var(--panel);
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:26px 28px;
+    margin-bottom:22px;
+  }
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .section-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--accent);
+    border:1px solid var(--accent-soft);
+    background:var(--accent-soft);
+    border-radius:5px;
+    padding:2px 7px;
+  }
+  h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:18px;
+    margin:0;
+    font-weight:600;
+  }
+  .section-desc{
+    color:var(--muted);
+    font-size:13.5px;
+    margin:6px 0 20px;
+    max-width:640px;
+  }
+
+  /* ============================================================
+     INPUT ROWS
+     Each "label on the left, input box on the right" row used in
+     sections 01, 02, and 04 (e.g. Average annual salary).
+     ============================================================ */
+  .field-row{
+    display:grid;
+    grid-template-columns:1fr 220px;
+    gap:14px;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .field-row:last-child{border-bottom:none;}
+  .field-row label{
+    font-size:14.5px;
+  }
+  .field-row .hint{
+    display:block;
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .input-wrap .prefix, .input-wrap .suffix{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--muted);
+    padding:0 6px;
+  }
+  input[type=number], input[type=text]{
+    width:100%;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14.5px;
+    padding:9px 10px;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    background:#FAFBF8;
+    color:var(--ink);
+  }
+  input[type=number]:focus, input[type=text]:focus{
+    outline:none;
+    border-color:var(--teal);
+    background:#fff;
+  }
+
+  /* ============================================================
+     DERIVED-VALUE CARDS
+     The teal boxes that show a calculated result (hourly rate,
+     annual hours, dollar cost, etc.) alongside the formula used.
+     ============================================================ */
+  .derived-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-top:16px;
+  }
+  .derived-card{
+    background:var(--teal-soft);
+    border:1px solid #cfe3da;
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .derived-card .val{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--teal);
+  }
+  .derived-card .lbl{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  /* ============================================================
+     BACKLOG TABLE (section 03)
+     Editable rows: task name, hours/week, and a remove ("×") button.
+     ============================================================ */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:6px;
+  }
+  th{
+    text-align:left;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--muted);
+    font-weight:600;
+    padding:8px 8px;
+    border-bottom:1.5px solid var(--ink);
+  }
+  td{
+    padding:6px 8px;
+    border-bottom:1px solid var(--line);
+    font-size:14.5px;
+  }
+  td input[type=text]{border:none;background:transparent;padding:6px 4px;font-family:'Inter',sans-serif;font-size:14.5px;}
+  td input[type=number]{border:none;background:transparent;padding:6px 4px;text-align:right;width:100px;}
+  td input[type=text]:focus, td input[type=number]:focus{background:#FAFBF8;border-radius:6px;}
+  tr.row-total td{
+    font-weight:700;
+    border-bottom:none;
+    border-top:1.5px solid var(--ink);
+  }
+  .col-right{text-align:right;}
+  .remove-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:16px;
+    cursor:pointer;
+    padding:2px 6px;
+    border-radius:5px;
+  }
+  .remove-btn:hover{background:#fbe6e2;}
+  .add-row-btn{
+    margin-top:12px;
+    font-size:13px;
+    padding:7px 12px;
+  }
+
+  /* ============================================================
+     RESULTS SECTION (section 05 "The business case")
+     The section itself sits on a green background with black text.
+     The two supporting cards (opportunity cost, net benefit) are
+     white cards with black text, bordered the same way as every
+     other card/section on the page. The ROI card and the narrative
+     box below it keep the charcoal (--ink) treatment instead, so
+     they still read as the page's "final answer."
+     ============================================================ */
+  .results{
+    background:var(--accent-soft);  /* green */
+    color:var(--ink);               /* black text directly on the green background */
+    border:none;
+  }
+  .results h2{color:var(--ink);}
+  .results .section-desc{color:var(--ink);}
+  .result-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin-top:18px;
+  }
+  .result-card{
+    background:#fff;              /* white card for the two smaller, non-highlighted results */
+    color:var(--ink);             /* black text */
+    border:1.5px solid var(--line); /* same border treatment used elsewhere on the page */
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .result-card.wide{grid-column:1/-1;}
+  .result-card .val{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:30px;
+    font-weight:700;
+    color:var(--ink);             /* black number on the white cards */
+  }
+  .result-card .lbl{
+    font-size:13px;
+    color:var(--ink);             /* black label on the white cards */
+    margin-top:4px;
+  }
+  .formula{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--ink);             /* black formula text on the white cards */
+    opacity:0.7;
+    margin-top:8px;
+  }
+
+  /* ROI card: kept as the charcoal card it already was, distinct from
+     the two white cards above. The ROI number itself is colored green
+     or pink from JavaScript depending on whether ROI is positive
+     (role pays for itself) or negative — see recalc() in the script. */
+  .result-card.highlight{
+    background:var(--ink);
+    border:1px solid rgba(255,255,255,0.14);
+    color:var(--panel);
+  }
+  .result-card.highlight .val{
+    color:var(--accent-soft); /* default/positive state; overridden inline by JS when ROI is negative */
+  }
+  .result-card.highlight .lbl{color:var(--panel);}
+  .result-card.highlight .formula{color:rgba(247,244,254,0.7);}
+
+  /* Used for the amber "assumption" tip and the verdict box at the bottom */
+  .note-box{
+    font-size:13px;
+    color:var(--muted);
+    background:var(--accent-soft);
+    border:1px solid #e6d3b8;
+    border-radius:10px;
+    padding:12px 16px;
+    margin-top:8px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12.5px;
+    margin-top:30px;
+  }
+
+  /* Stack the two-column rows into one column on narrow/mobile screens */
+  @media (max-width:640px){
+    .field-row{grid-template-columns:1fr;}
+    .derived-grid, .result-grid{grid-template-columns:1fr;}
+  }
+
+  /* ============================================================
+     PRINT STYLES
+     Only applied when the user prints or "Saves as PDF." Goal:
+     hide the interactive controls (buttons, remove-row "×") and
+     flip the dark results box to a light, ink-friendly print style
+     so the printed page looks like a document, not a screenshot.
+     ============================================================ */
+  @media print{
+    body{background:#fff;padding:0;}
+    .toolbar{display:none;}                 /* Reset/Print buttons aren't useful on paper */
+    section{box-shadow:none;border:1px solid #ccc;break-inside:avoid;} /* avoid a section splitting across a page break */
+    .results{background:var(--panel) !important;color:var(--ink) !important;border:1px solid rgba(19,42,46,0.25);}
+    .results h2, .results .section-desc, .result-card .lbl, .formula{color:var(--muted) !important;}
+    .result-card{background:var(--paper) !important;border-color:rgba(19,42,46,0.2) !important;}
+    .result-card .val{color:var(--ink) !important;}
+    .result-card.highlight .val{color:var(--accent) !important;}
+    .remove-btn, .add-row-btn{display:none;}  /* editing controls make no sense on a printout */
+    input{border:none !important;}            /* inputs render as plain text instead of boxes */
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ============================================================
+       PAGE HEADER: title + the Reset/Print buttons
+       ============================================================ -->
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Business Case Worksheet</p>
+      <h1>Cost Justification Calculator</h1>
+      <p class="sub">Turn hours lost to a backlog into a dollar figure, then weigh it against the cost of the role that would take it on.</p>
+    </div>
+    <div class="toolbar">
+      <button class="ghost" id="resetBtn">Reset to sample</button>
+      <button class="primary" id="printBtn">Print / Save as PDF</button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       SECTION 01 — Rate assumptions
+       Inputs: salary, work hours/year.
+       Derives: hourly rate, $1k-as-%-of-salary, $1k-in-hours.
+       ============================================================ -->
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>Your rate assumptions</h2></div>
+    <p class="section-desc">Set the average salary and work-year for the role whose time you're costing out. Everything else on this page is derived from these two numbers.</p>
+
+    <div class="field-row">
+      <label for="salary">Average annual salary
+        <span class="hint">Fully loaded cost is more accurate than base salary alone.</span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="salary" value="100000" min="0" step="1000">
+      </div>
+    </div>
+    <div class="field-row">
+      <label for="workHours">Work hours per year
+        <span class="hint">2,000 hours ≈ 40 hrs/week × 50 weeks.</span>
+      </label>
+      <div class="input-wrap">
+        <input type="number" id="workHours" value="2000" min="1" step="10">
+      </div>
+    </div>
+
+    <div class="derived-grid">
+      <div class="derived-card">
+        <div class="val" id="hourlyRateOut">$50.00</div>
+        <div class="lbl">Hourly rate<br><span class="formula" style="color:inherit;opacity:.7;">salary ÷ work hours</span></div>
+      </div>
+      <div class="derived-card">
+        <div class="val" id="pctSalaryOut">1.00%</div>
+        <div class="lbl">$1,000 as % of salary<br><span class="formula" style="color:inherit;opacity:.7;">1000 ÷ salary</span></div>
+      </div>
+      <div class="derived-card">
+        <div class="val" id="hoursPerKOut">20.0 hrs</div>
+        <div class="lbl">$1,000 in hours<br><span class="formula" style="color:inherit;opacity:.7;">1000 ÷ hourly rate</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 02 — Ad hoc time cost
+       Input: hours/week on ad hoc work (emails, searching, etc.)
+       Formula: hours/week × 50 weeks × hourly rate = annual cost
+       ============================================================ -->
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Ad hoc time cost</h2></div>
+    <p class="section-desc">Time spent on ad hoc work — answering emails, searching for answers, and similar — rarely shows up on a timesheet, but it still has a cost. Estimate it here.</p>
+
+    <div class="field-row">
+      <label for="adhocHoursWeek">Hours per week spent on ad hoc work (emails, searching for answers, etc.)
+        <span class="hint">Include the disruption cost of getting back to what you were doing. We'll convert this to a yearly figure for you.</span>
+      </label>
+      <div class="input-wrap">
+        <input type="number" id="adhocHoursWeek" value="0.5" min="0" step="0.25">
+        <span class="suffix">hrs / wk</span>
+      </div>
+    </div>
+
+    <div class="derived-grid">
+      <div class="derived-card">
+        <div class="val" id="adhocHoursYearOut">26.0 hrs</div>
+        <div class="lbl">Hours per year<br><span class="formula" style="color:inherit;opacity:.7;">hours/week × 50 weeks</span></div>
+      </div>
+      <div class="derived-card" style="grid-column:span 2;">
+        <div class="val" id="adhocCostOut">$1,300.00</div>
+        <div class="lbl">Annual cost of ad hoc time<br><span class="formula" style="color:inherit;opacity:.7;">hours/year × hourly rate</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 03 — Backlog table
+       Editable list of tasks with hours/week each. Rows are stored
+       in the `backlog` JS array and rendered by renderBacklog().
+       Formula: total hrs/week × 50 weeks × hourly rate = $ value
+       ============================================================ -->
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>Your backlog</h2></div>
+    <p class="section-desc">List the work that's stacking up because there's no dedicated person to own it. Estimate the hours per week each task takes, or add your own rows. We'll annualize it using the same 50-week year as above.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th class="col-right">Hours / week</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="backlogBody"></tbody>
+      <tfoot>
+        <tr class="row-total">
+          <td>Total backlog (hrs/wk)</td>
+          <td class="col-right" id="backlogHoursTotal">3.56</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    <button class="ghost add-row-btn" id="addRowBtn">+ Add task</button>
+
+    <div class="derived-grid">
+      <div class="derived-card">
+        <div class="val" id="backlogHoursYearOut">178.0 hrs</div>
+        <div class="lbl">Hours per year<br><span class="formula" style="color:inherit;opacity:.7;">hours/week × 50 weeks</span></div>
+      </div>
+      <div class="derived-card" style="grid-column:span 2;">
+        <div class="val" id="backlogCostOut">$8,900.00</div>
+        <div class="lbl">Dollar value of the backlog</div>
+        <div class="formula" id="backlogFormulaOut" style="color:inherit;opacity:.7; margin-top:4px;">3.56 hrs/wk × 50 wks × $50.00/hr = $8,900.00</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 04 — Cost of the role
+       Single input: what it would cost annually to staff this work.
+       ============================================================ -->
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>Cost of the role</h2></div>
+    <p class="section-desc">What it would cost to fully staff this — a new hire, a contractor, or reallocated time from someone already on the team.</p>
+
+    <div class="field-row">
+      <label for="roleCost">Annual cost of the role
+        <span class="hint">Include salary, benefits, and overhead if you have it.</span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="roleCost" value="40000" min="0" step="1000">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 05 — Results (the "business case")
+       All values here are 100% derived — no direct inputs.
+       Opportunity cost = ad hoc cost + backlog cost
+       Net benefit      = opportunity cost − role cost
+       ROI              = opportunity cost ÷ role cost
+       ============================================================ -->
+  <section class="results">
+    <div class="section-head"><span class="section-num">05</span><h2>The business case</h2></div>
+    <p class="section-desc">What the backlog and ad hoc time are costing you today, set against what it would cost to fix it.</p>
+
+    <div class="result-grid">
+      <div class="result-card">
+        <div class="val" id="totalOppCostOut">$10,150.00</div>
+        <div class="lbl">Total opportunity cost / year</div>
+        <div class="formula">backlog value + ad hoc time cost</div>
+      </div>
+      <div class="result-card">
+        <div class="val" id="netBenefitOut">−$29,850.00</div>
+        <div class="lbl">Net benefit of filling the role</div>
+        <div class="formula">opportunity cost − role cost</div>
+      </div>
+      <div class="result-card highlight wide">
+        <div class="val" id="roiOut">0.25×</div>
+        <div class="lbl">Annual ROI</div>
+        <div class="formula">opportunity cost ÷ role cost — value returned per $1 spent on the role</div>
+      </div>
+    </div>
+
+    <div class="note-box" id="verdictBox" style="margin-top:18px; background:var(--ink); border:1px solid rgba(255,255,255,0.14); color:#D9E3DC;">
+      Verdict goes here.
+    </div>
+  </section>
+
+  <p class="print-only-note">Generated with the Cost Justification Calculator.</p>
+
+  <footer>
+    Edit any field above — every number recalculates automatically. Use <strong>Print / Save as PDF</strong> to keep a copy.
+  </footer>
+</div>
+
+<script>
+  /* ================================================================
+     CALCULATOR LOGIC OVERVIEW
+     ----------------------------------------------------------------
+     Flow: loadState() runs once on page load to restore any saved
+     inputs (or fall back to SAMPLE_BACKLOG). renderBacklog() draws
+     the backlog table from the `backlog` array. recalc() reads every
+     input on the page, does the math, writes the results back into
+     the page, and saves state — it re-runs every time any input
+     changes, which is why the page never needs a "Calculate" button.
+
+     Key formulas (all computed inside recalc()):
+       hourly rate        = salary ÷ work hours/year
+       ad hoc annual cost = (hrs/week × 50 weeks) × hourly rate
+       backlog annual cost= (sum of row hrs/week × 50 weeks) × hourly rate
+       total opportunity  = ad hoc cost + backlog cost
+       net benefit         = total opportunity cost − role cost
+       ROI                 = total opportunity cost ÷ role cost
+     ================================================================ */
+
+  // Default backlog rows shown the first time the page loads (or after
+  // "Reset to sample"). Hours are weekly; these five add up to the same
+  // 178 hrs/year as the original source spreadsheet's sample data.
+  const SAMPLE_BACKLOG = [
+    { task: "Perform license utilization analysis", hours: 0.48 },
+    { task: "Develop data storytelling webinar", hours: 2.4 },
+    { task: "Write LOD calcs blog", hours: 0.32 },
+    { task: "Send monthly newsletter", hours: 0.24 },
+    { task: "Present onboard training", hours: 0.12 },
+  ];
+
+  // Small helpers used throughout the file --------------------------
+
+  // Shorthand for document.getElementById — saves repeating it everywhere.
+  const el = (id) => document.getElementById(id);
+
+  // Formats a number as US currency, e.g. 1234.5 -> "$1,234.50".
+  // Negative numbers get a leading "−" instead of JS's default "-$".
+  const fmtUSD = (n) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Formats a decimal as a percentage, e.g. 0.01 -> "1.00%".
+  const fmtPct = (n) => (n * 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
+
+  // Formats a number of hours, e.g. 26 -> "26.0 hrs".
+  const fmtHrs = (n) => n.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " hrs";
+
+  // Formats a plain whole number (currently unused, kept as a small utility).
+  const fmtNum = (n) => n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+  // Holds the backlog table's rows in memory, e.g. [{task: "...", hours: 2.4}, ...].
+  // renderBacklog() draws the <table> from this array; edits to the table
+  // write back into this array (see renderBacklog's input listeners below).
+  let backlog = [];
+
+  // ------------------------------------------------------------------
+  // loadState() — runs once when the page opens.
+  // Tries to restore whatever the user last entered (saved in the
+  // browser's localStorage, a small per-browser storage locker). If
+  // nothing was saved before (first visit), it falls back to the
+  // built-in SAMPLE_BACKLOG so the page isn't empty.
+  // ------------------------------------------------------------------
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("costJustificationCalc") || "null");
+      if (saved) {
+        el("salary").value = saved.salary;
+        el("workHours").value = saved.workHours;
+        el("adhocHoursWeek").value = saved.adhocHoursWeek;
+        el("roleCost").value = saved.roleCost;
+        // Guard against corrupted/empty saved backlog data.
+        backlog = saved.backlog && saved.backlog.length ? saved.backlog : SAMPLE_BACKLOG.map(r => ({...r}));
+        return;
+      }
+    } catch (e) {
+      // Saved data was missing or malformed (e.g. cleared cache) — ignore
+      // and fall through to the sample data below.
+    }
+    backlog = SAMPLE_BACKLOG.map(r => ({...r}));
+  }
+
+  // ------------------------------------------------------------------
+  // saveState() — called at the end of every recalc() so the page
+  // remembers the user's numbers next time they open this file.
+  // Wrapped in try/catch because localStorage can fail (e.g. private
+  // browsing mode) and that shouldn't break the calculator.
+  // ------------------------------------------------------------------
+  function saveState() {
+    try {
+      localStorage.setItem("costJustificationCalc", JSON.stringify({
+        salary: Number(el("salary").value),
+        workHours: Number(el("workHours").value),
+        adhocHoursWeek: Number(el("adhocHoursWeek").value),
+        roleCost: Number(el("roleCost").value),
+        backlog: backlog
+      }));
+    } catch (e) {}
+  }
+
+  // ------------------------------------------------------------------
+  // renderBacklog() — rebuilds the <tbody> of the backlog table from
+  // the `backlog` array. Called whenever a row is added or removed
+  // (editing an existing cell's value does NOT re-render — see the
+  // "input" listener below, which updates `backlog` in place instead
+  // so the user doesn't lose cursor focus while typing).
+  // ------------------------------------------------------------------
+  function renderBacklog() {
+    const body = el("backlogBody");
+    body.innerHTML = ""; // clear out the old rows before redrawing
+
+    backlog.forEach((row, i) => {
+      const tr = document.createElement("tr");
+      // data-idx / data-field tell the event listeners below which
+      // backlog[] entry and property a given input corresponds to.
+      tr.innerHTML = `
+        <td><input type="text" data-idx="${i}" data-field="task" value="${row.task.replace(/"/g,'&quot;')}"></td>
+        <td class="col-right"><input type="number" data-idx="${i}" data-field="hours" value="${row.hours}" min="0" step="1"></td>
+        <td><button class="remove-btn" data-idx="${i}" title="Remove task">×</button></td>
+      `;
+      body.appendChild(tr);
+    });
+
+    // Wire up "typing in a cell updates the backlog array and recalculates".
+    body.querySelectorAll("input").forEach(input => {
+      input.addEventListener("input", (e) => {
+        const idx = Number(e.target.dataset.idx);
+        const field = e.target.dataset.field;
+        backlog[idx][field] = field === "hours" ? Number(e.target.value || 0) : e.target.value;
+        recalc();
+      });
+    });
+    // Wire up "clicking × removes that row, then redraw the table".
+    body.querySelectorAll(".remove-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const idx = Number(e.target.dataset.idx);
+        backlog.splice(idx, 1);
+        renderBacklog();
+        recalc();
+      });
+    });
+  }
+
+  // Adds a blank row to the backlog table ("+ Add task" button).
+  function addRow() {
+    backlog.push({ task: "New task", hours: 0 });
+    renderBacklog();
+    recalc();
+  }
+
+  // ------------------------------------------------------------------
+  // recalc() — the core of the calculator. Reads every input field,
+  // runs the formulas described in the overview comment at the top
+  // of this script, and writes each result back into the matching
+  // element by id. Runs on page load and every time any input changes.
+  // ------------------------------------------------------------------
+  function recalc() {
+    // --- Read raw inputs (fall back to 0/1 if a field is blank) -----
+    const salary = Number(el("salary").value) || 0;
+    const workHours = Number(el("workHours").value) || 1; // avoid divide-by-zero
+    const adhocHoursWeek = Number(el("adhocHoursWeek").value) || 0;
+    const roleCost = Number(el("roleCost").value) || 0;
+
+    // --- Section 01: rate assumptions --------------------------------
+    const hourlyRate = salary / workHours;
+    const pctSalary = salary ? 1000 / salary : 0;      // what % of salary is $1,000
+    const hoursPerK = hourlyRate ? 1000 / hourlyRate : 0; // how many hours = $1,000
+
+    // --- Section 02: ad hoc time cost --------------------------------
+    // Weekly hours -> annual hours (× 50 work weeks/year) -> dollars.
+    const adhocHoursYear = adhocHoursWeek * 50;
+    const adhocCost = adhocHoursYear * hourlyRate;
+
+    // --- Section 03: backlog -----------------------------------------
+    // Sum every row's weekly hours, annualize the same way as ad hoc
+    // time, then convert to dollars using the same hourly rate.
+    const backlogHoursWeekTotal = backlog.reduce((sum, r) => sum + (Number(r.hours) || 0), 0);
+    const backlogHoursYear = backlogHoursWeekTotal * 50;
+    const backlogCost = backlogHoursYear * hourlyRate;
+
+    // --- Section 05: the business case --------------------------------
+    const totalOppCost = adhocCost + backlogCost;
+    const netBenefit = totalOppCost - roleCost;
+    const roi = roleCost > 0 ? totalOppCost / roleCost : 0;
+
+    // --- Write every computed value back into the page ----------------
+    el("hourlyRateOut").textContent = fmtUSD(hourlyRate);
+    el("pctSalaryOut").textContent = fmtPct(pctSalary);
+    el("hoursPerKOut").textContent = fmtHrs(hoursPerK);
+    el("adhocHoursYearOut").textContent = fmtHrs(adhocHoursYear);
+    el("adhocCostOut").textContent = fmtUSD(adhocCost);
+    el("backlogHoursTotal").textContent = backlogHoursWeekTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    el("backlogHoursYearOut").textContent = fmtHrs(backlogHoursYear);
+    el("backlogCostOut").textContent = fmtUSD(backlogCost);
+    // Spells out the backlog formula with the *actual* numbers plugged in,
+    // e.g. "3.56 hrs/wk × 50 wks × $50.00/hr = $8,900.00", so the math
+    // behind the total dollar value is visible, not just the result.
+    el("backlogFormulaOut").textContent = `${backlogHoursWeekTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} hrs/wk × 50 wks × ${fmtUSD(hourlyRate)}/hr = ${fmtUSD(backlogCost)}`;
+    el("totalOppCostOut").textContent = fmtUSD(totalOppCost);
+    el("netBenefitOut").textContent = fmtUSD(netBenefit);
+    el("roiOut").textContent = roi.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "×";
+    // Green when the role pays for itself (ROI >= 1), pink otherwise —
+    // same threshold the verdict message below uses.
+    el("roiOut").style.color = roi >= 1 ? "var(--accent-soft)" : "var(--danger)";
+
+    // Plain-language takeaway shown under the results, changes wording
+    // depending on whether the role "pays for itself" on these numbers.
+    const verdict = el("verdictBox");
+    if (roleCost <= 0) {
+      verdict.textContent = "Enter an annual cost for the role above to see the verdict.";
+    } else if (roi >= 1) {
+      verdict.textContent = `The backlog and ad hoc time cost about ${fmtUSD(totalOppCost)}/year — ${roi.toFixed(2)}× the ${fmtUSD(roleCost)} cost of the role. On these numbers, the role pays for itself.`;
+    } else {
+      verdict.textContent = `The backlog and ad hoc time cost about ${fmtUSD(totalOppCost)}/year against a ${fmtUSD(roleCost)} role cost (${roi.toFixed(2)}×). On these numbers alone the role doesn't pay for itself yet — add other backlog items or qualitative value to strengthen the case.`;
+    }
+
+    // Persist the current inputs so they're still here next time the
+    // file is opened.
+    saveState();
+  }
+
+  // Restores every field to its original demo values ("Reset to sample" button).
+  function resetToSample() {
+    el("salary").value = 100000;
+    el("workHours").value = 2000;
+    el("adhocHoursWeek").value = 0.5;
+    el("roleCost").value = 40000;
+    backlog = SAMPLE_BACKLOG.map(r => ({...r})); // copy, not reference, so editing doesn't mutate the constant
+    renderBacklog();
+    recalc();
+  }
+
+  // --- Wire up static buttons (these exist once and never get redrawn) ---
+  el("addRowBtn").addEventListener("click", addRow);
+  el("resetBtn").addEventListener("click", resetToSample);
+  el("printBtn").addEventListener("click", () => window.print());
+  // Any edit to these four top-level fields triggers a full recalculation.
+  ["salary","workHours","adhocHoursWeek","roleCost"].forEach(id => el(id).addEventListener("input", recalc));
+
+  // --- Initial page load sequence -----------------------------------
+  loadState();     // restore saved inputs (or sample data)
+  renderBacklog();  // draw the backlog table
+  recalc();         // compute and display all results
+</script>
+</body>
+</html>
