@@ -1,0 +1,71 @@
+/* Global Styles */
+    /* =============================================
+       CSS VARIABLES — one place to change colors/fonts
+       Think of these like named paint swatches.
+    ============================================= */
+    :root {
+      --bg: #09090f;
+      --surface: #13131f;
+      --border: #1e1e30;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --font-display: 'Poppins Bold', sans-serif;
+      --font-body: 'Poppins', sans-serif;
+    }
+
+
+    /* =============================================
+       RESET — clears default browser styling so
+       everything looks the same across browsers
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 1; padding: 1; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      overflow-x: hidden; /* prevent horizontal scroll */
+    }
+
+    /* =============================================
+       NAV BAR — sits at the top of every page
+    ============================================= */
+    nav {
+      display: flex;
+      justify-content: space-between; /* logo left, links right */
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;   /* sticks to top as you scroll */
+      top: 0;
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(12px); /* frosted glass effect */
+      z-index: 100; /* stay above other elements */
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    nav ul {
+      list-style: none; /* remove bullet points */
+      display: flex;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s; /* smooth color change on hover */
+    }
+    nav a:hover, nav a.active { color: var(--text); }
